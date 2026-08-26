@@ -19,7 +19,8 @@ export default function ContactPage() {
     <>
       <PageHeader
         eyebrow={contact.eyebrow}
-        lines={["Come to", "the counter."]}
+        lines={["Come to the counter."]}
+        linesSm={["Come to", "the counter."]}
         standfirst={contact.standfirst}
         aside={
           <div className="mt-8">

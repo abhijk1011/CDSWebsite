@@ -18,11 +18,30 @@ export function StatBand() {
   return (
     <section className="relative overflow-hidden bg-cream py-20 md:py-28">
       <div className="shell">
-        <MaskReveal
-          as="h2"
-          className="max-w-[20ch] font-display text-h2 text-cocoa display-wonk"
-          lines={["A shop is only", "as good as the day", "it is having."]}
-        />
+        <div className="grid gap-8 lg:grid-cols-[1.15fr_1fr] lg:items-end lg:gap-16">
+          <MaskReveal
+            as="h2"
+            className="font-display text-h2 text-cocoa display-wonk"
+            lines={["A shop is only as good", "as the day it is having."]}
+            linesSm={["A shop is only", "as good as the day", "it is having."]}
+          />
+
+          <motion.p
+            className="text-[1.0625rem] leading-relaxed text-body lg:pb-1.5"
+            variants={{
+              hidden: { opacity: 0 },
+              shown: {
+                opacity: 1,
+                transition: { duration: 0.7, ease: ease.out },
+              },
+            }}
+            {...reveal}
+          >
+            We would rather run out of something at eight in the evening than
+            sell you a tray that was fried on Tuesday. Empty trays are a good
+            sign, and our regulars know it.
+          </motion.p>
+        </div>
 
         <div className="mt-14 grid gap-px overflow-hidden rounded-2xl bg-[rgba(138,90,59,0.18)] sm:grid-cols-2 lg:grid-cols-4">
           {about.stats.map((s, i) => (
@@ -35,18 +54,6 @@ export function StatBand() {
           ))}
         </div>
 
-        <motion.p
-          className="mt-12 max-w-2xl text-[1.0625rem] leading-relaxed text-body"
-          variants={{
-            hidden: { opacity: 0 },
-            shown: { opacity: 1, transition: { duration: 0.7, ease: ease.out } },
-          }}
-          {...reveal}
-        >
-          We would rather run out of something at eight in the evening than
-          sell you a tray that was fried on Tuesday. Empty trays are a good
-          sign, and our regulars know it.
-        </motion.p>
       </div>
     </section>
   );

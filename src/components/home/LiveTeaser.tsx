@@ -13,7 +13,7 @@ const rotating = menu.flatMap((s) => s.items.slice(0, 3).map((i) => i.name));
 
 export function LiveTeaser() {
   return (
-    <section className="border-y border-[rgba(138,90,59,0.18)] bg-clay py-20 md:py-28">
+    <section className="border-b border-[rgba(138,90,59,0.18)] bg-clay py-20 md:py-28">
       <div className="shell grid gap-14 lg:grid-cols-2 lg:items-center lg:gap-20">
         <div>
           <div className="flex flex-wrap items-center gap-4">
@@ -23,8 +23,9 @@ export function LiveTeaser() {
 
           <MaskReveal
             as="h2"
-            className="mt-6 max-w-[15ch] font-display text-h2 text-cocoa display-wonk"
-            lines={["Some things", "cannot wait", "on a shelf."]}
+            className="mt-6 font-display text-h2 text-cocoa display-wonk"
+            lines={["Some things cannot", "wait on a shelf."]}
+            linesSm={["Some things", "cannot wait", "on a shelf."]}
           />
 
           <Rise index={1}>

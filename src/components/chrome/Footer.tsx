@@ -16,7 +16,7 @@ export function Footer() {
         <div className="grid gap-14 lg:grid-cols-[1.1fr_1fr] lg:gap-20">
           <div>
             <p className="eyebrow text-on-dark-muted">{brand.region}</p>
-            <p className="mt-5 max-w-[19ch] font-display text-[clamp(2rem,4.6vw,3.25rem)] leading-[1.02] text-cream display-wonk">
+            <p className="mt-5 max-w-[22ch] font-display text-[clamp(2rem,4.6vw,3.25rem)] leading-[1.02] text-cream display-wonk">
               {brand.promise}
             </p>
             <Link

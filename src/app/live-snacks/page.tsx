@@ -20,7 +20,8 @@ export default function LiveSnacksPage() {
     <>
       <PageHeader
         eyebrow="Live snacks"
-        lines={["The kitchen", "at the back."]}
+        lines={["The kitchen at the back."]}
+        linesSm={["The kitchen", "at the back."]}
         standfirst="Nothing on this board is made before you ask for it. The tawa runs all day, the fryer goes on at four and the jalebi comes out of the syrup while you are still paying for it."
         aside={
           <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -49,8 +50,9 @@ export default function LiveSnacksPage() {
         <div className="shell grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-20">
           <MaskReveal
             as="h2"
-            className="max-w-[15ch] font-display text-h2 text-cream display-wonk"
-            lines={["Prices live", "on the board,", "not on a website."]}
+            className="font-display text-h2 text-cream display-wonk"
+            lines={["Prices live on the board,", "not on a website."]}
+            linesSm={["Prices live", "on the board,", "not on a website."]}
           />
           <Rise>
             <p className="text-[1.0625rem] leading-relaxed text-on-dark-muted">

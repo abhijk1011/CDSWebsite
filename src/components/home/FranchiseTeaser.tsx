@@ -12,7 +12,7 @@ export function FranchiseTeaser() {
               <p className="eyebrow">{franchise.eyebrow}</p>
               <MaskReveal
                 as="h2"
-                className="mt-5 max-w-[14ch] font-display text-h2 text-cocoa display-wonk"
+                className="mt-5 font-display text-h2 text-cocoa display-wonk"
                 lines={["Run the counter", "in your city."]}
               />
               <Rise index={1}>

@@ -19,7 +19,8 @@ export default function WhatWeSellPage() {
     <>
       <PageHeader
         eyebrow="What we sell"
-        lines={["Fifteen counters,", "one room."]}
+        lines={["Fifteen counters, one room."]}
+        linesSm={["Fifteen counters,", "one room."]}
         standfirst="Sweets set that morning, farsan fried the same afternoon, an imported aisle people drive in for and a gifting counter that carries most of October. Tap any counter to see what sits on it."
         aside={
           <dl className="mt-8 flex flex-wrap gap-x-10 gap-y-4">
@@ -47,14 +48,15 @@ export default function WhatWeSellPage() {
 
       <ArcCounters
         eyebrow="The counters"
-        lines={["Every counter,", "on one arc."]}
+        lines={["Every counter,", "on a single arc."]}
         intro="Drag through the whole shop. Open any counter to read what sits on it, or use the list below to jump straight to one."
         showLink={false}
+        blendTo="#FDF8F2"
       />
 
       <section className="shell pt-20 pb-4 md:pt-28">
         <p className="eyebrow">The full list</p>
-        <h2 className="mt-5 max-w-[18ch] font-display text-h2 text-cocoa display-wonk">
+        <h2 className="mt-5 font-display text-h2 text-cocoa display-wonk">
           Or browse them the plain way.
         </h2>
       </section>

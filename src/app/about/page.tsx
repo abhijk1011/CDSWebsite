@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/chrome/PageHeader";
 import { about } from "@/content/pages";
 import { stores, hours, brand } from "@/content/site";
+import { categories } from "@/content/categories";
 import { MaskReveal, Rise } from "@/components/primitives/Reveal";
 import { Button, Arrow } from "@/components/primitives/Button";
 import { Mark } from "@/components/marks";
@@ -17,8 +18,31 @@ export default function AboutPage() {
     <>
       <PageHeader
         eyebrow={about.eyebrow}
-        lines={["A day to day store", "that refuses", "to be ordinary."]}
+        lines={["A day to day store", "that refuses to be ordinary."]}
+        linesSm={["A day to day store", "that refuses", "to be ordinary."]}
         standfirst={about.standfirst}
+        aside={
+          <dl className="grid grid-cols-3 gap-px overflow-hidden rounded-xl bg-[rgba(138,90,59,0.18)]">
+            <div className="bg-clay p-5">
+              <dt className="text-[0.8125rem] text-caramel">Stores</dt>
+              <dd className="mt-1 font-display text-[1.6rem] tnum text-cocoa">
+                {stores.length}
+              </dd>
+            </div>
+            <div className="bg-clay p-5">
+              <dt className="text-[0.8125rem] text-caramel">Counters</dt>
+              <dd className="mt-1 font-display text-[1.6rem] tnum text-cocoa">
+                {categories.length}
+              </dd>
+            </div>
+            <div className="bg-clay p-5">
+              <dt className="text-[0.8125rem] text-caramel">Region</dt>
+              <dd className="mt-1 font-display text-[1.15rem] leading-snug text-cocoa">
+                South Gujarat
+              </dd>
+            </div>
+          </dl>
+        }
       />
 
       {/* Chapters. The number sits in display type at a size that carries the
@@ -28,7 +52,7 @@ export default function AboutPage() {
           {about.chapters.map((c) => (
             <li
               key={c.n}
-              className="grid gap-4 border-b border-[rgba(138,90,59,0.18)] py-10 md:grid-cols-[7rem_1fr] md:gap-10 md:py-14 lg:grid-cols-[10rem_1fr_18rem]"
+              className="grid gap-4 border-b border-[rgba(138,90,59,0.18)] py-10 md:grid-cols-[6rem_1fr] md:gap-10 md:py-14 lg:grid-cols-[7rem_0.85fr_1.35fr] lg:gap-12"
             >
               <Rise index={0}>
                 <span className="font-display text-[clamp(2.5rem,7vw,4.5rem)] leading-none text-clay display-wonk">
@@ -56,12 +80,24 @@ export default function AboutPage() {
           dark block on this page. */}
       <section className="border-y border-[rgba(138,90,59,0.18)] bg-clay py-20 md:py-28">
         <div className="shell">
-          <p className="eyebrow">How we run it</p>
-          <MaskReveal
-            as="h2"
-            className="mt-5 max-w-[18ch] font-display text-h2 text-cocoa display-wonk"
-            lines={["Four rules we have", "never had a reason", "to break."]}
-          />
+          <div className="grid gap-8 lg:grid-cols-[1.15fr_1fr] lg:items-end lg:gap-16">
+            <div>
+              <p className="eyebrow">How we run it</p>
+              <MaskReveal
+                as="h2"
+                className="mt-5 font-display text-h2 text-cocoa display-wonk"
+                lines={["Four rules we have never", "had a reason to break."]}
+                linesSm={["Four rules we have", "never had a reason", "to break."]}
+              />
+            </div>
+            <Rise className="lg:pb-1.5">
+              <p className="text-[1.0625rem] leading-relaxed text-body">
+                None of these are written on a wall anywhere. They are simply
+                what happens when the person who owns the shop is also the
+                person standing behind the scale.
+              </p>
+            </Rise>
+          </div>
 
           <ul className="mt-14 grid gap-px overflow-hidden rounded-2xl bg-[rgba(138,90,59,0.18)] md:grid-cols-2">
             {about.values.map((v, i) => (
@@ -115,8 +151,9 @@ export default function AboutPage() {
           <p className="eyebrow">Where to find us</p>
           <MaskReveal
             as="h2"
-            className="mt-5 max-w-[16ch] font-display text-h2 text-cocoa display-wonk"
-            lines={["Two shops,", "both worth the drive."]}
+            className="mt-5 font-display text-h2 text-cocoa display-wonk"
+            lines={["Two shops, both worth the drive."]}
+            linesSm={["Two shops, both", "worth the drive."]}
           />
 
           <div className="mt-12 grid gap-4 md:grid-cols-2 md:gap-5">

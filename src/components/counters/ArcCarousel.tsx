@@ -390,11 +390,7 @@ export function ArcCarousel({
       {/* Visible controls. A carousel with no affordance is a carousel most
           people never touch, and these give keyboard users a real target.
           The scrim keeps them legible where a card caption sits behind. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-[1999] h-32 bg-linear-to-t from-cocoa via-cocoa/85 to-transparent"
-      />
-      <div className="pointer-events-none absolute inset-x-0 bottom-5 z-[2000] flex items-center justify-center gap-3 md:bottom-7">
+      <div className="pointer-events-none absolute inset-x-0 bottom-14 z-[2000] flex items-center justify-center gap-3 md:bottom-16">
         <button
           type="button"
           onClick={() => step(-1)}

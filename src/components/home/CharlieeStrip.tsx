@@ -26,7 +26,7 @@ export function CharlieeStrip() {
           <p className="eyebrow">The house label</p>
           <MaskReveal
             as="h2"
-            className="mt-5 max-w-[14ch] font-display text-h2 text-cocoa display-wonk"
+            className="mt-5 font-display text-h2 text-cocoa display-wonk"
             lines={["Our name goes on", "last, not first."]}
           />
         </div>

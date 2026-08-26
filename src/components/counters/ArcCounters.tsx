@@ -23,11 +23,18 @@ export function ArcCounters({
   lines = ["Walk the shop,", "counter by counter."],
   intro,
   showLink = true,
+  blendTo = "#F0DDCC",
 }: {
   eyebrow?: string;
   lines?: string[];
   intro?: string;
   showLink?: boolean;
+  /**
+   * The background colour of whatever section follows. The bottom of the arc
+   * resolves into it so the two sections meet on a gradient rather than on a
+   * hard line straight through the cards.
+   */
+  blendTo?: string;
 }) {
   const [openId, setOpenId] = useState<string | null>(null);
   const open = categories.find((c) => c.id === openId) ?? null;
@@ -35,18 +42,18 @@ export function ArcCounters({
   return (
     <section className="relative flex h-[92svh] min-h-[560px] w-full flex-col overflow-hidden bg-cocoa text-cream md:h-[94svh] md:min-h-[680px]">
       <div className="shell shrink-0 pt-28 md:pt-32">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div className="grid gap-8 lg:grid-cols-[1.15fr_1fr] lg:items-end lg:gap-16">
           <div>
             <p className="eyebrow text-on-dark-muted">{eyebrow}</p>
             <MaskReveal
               as="h2"
-              className="mt-4 max-w-[18ch] font-display text-h2 text-cream display-wonk"
+              className="mt-5 font-display text-h2 text-cream display-wonk"
               lines={lines}
             />
           </div>
 
           {(intro || showLink) && (
-            <div className="max-w-md lg:pb-2">
+            <div className="lg:pb-1.5">
               {/* The arc needs the vertical room on a phone far more than the
                   intro does, so the paragraph only appears once there is
                   space beside the heading rather than above the cards. */}
@@ -71,6 +78,17 @@ export function ArcCounters({
 
       <div className="relative min-h-0 flex-1">
         <ArcCarousel items={categories} onSelect={setOpenId} />
+
+        {/* Cards resolve down into cocoa, and cocoa resolves into the next
+            section, so the join reads as one continuous surface. Sits above
+            the cards but below the controls, which stay on the dark stretch. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[1500] h-64"
+          style={{
+            background: `linear-gradient(to bottom, transparent 0%, #3A231A 36%, #3A231A 64%, ${blendTo} 100%)`,
+          }}
+        />
       </div>
 
       <CategoryDetail category={open} onClose={() => setOpenId(null)} />

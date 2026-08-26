@@ -27,36 +27,56 @@ export function useReveal() {
 type Tag = "h1" | "h2" | "h3" | "p" | "div";
 
 /**
- * Line by line mask reveal. Lines are authored rather than measured, which
- * keeps the ragging under our control and costs no layout thrash. If a line
- * wraps on a narrow screen the mask still contains it, so nothing clips.
+ * Line by line mask reveal.
+ *
+ * Lines are authored rather than measured, which keeps the ragging under our
+ * control and costs no layout thrash. A break that fills the measure on a
+ * laptop rarely fills it on a phone, so `linesSm` takes a second set for
+ * narrow screens. When both are given the visible text is duplicated, so the
+ * accessible copy is lifted into a single screen reader only line and both
+ * visual versions are hidden from assistive tech.
  */
 export function MaskReveal({
   lines,
+  linesSm,
   as: Tag = "h2",
   className = "",
   delay = 0,
 }: {
   lines: string[];
+  /** Optional break set for screens below the md breakpoint. */
+  linesSm?: string[];
   as?: Tag;
   className?: string;
   delay?: number;
 }) {
   const Component = motion[Tag];
   const reveal = useReveal();
+  const responsive = Boolean(linesSm?.length);
+
+  const stack = (set: string[], key: string) =>
+    set.map((line, i) => (
+      <span key={`${key}-${line}-${i}`} className="line-mask">
+        <motion.span className="block" variants={maskLine} custom={i + delay}>
+          {line}
+        </motion.span>
+      </span>
+    ));
+
   return (
     <Component className={className} {...reveal}>
-      {lines.map((line, i) => (
-        <span key={line + i} className="line-mask">
-          <motion.span
-            className="block"
-            variants={maskLine}
-            custom={i + delay}
-          >
-            {line}
-          </motion.span>
+      {responsive && <span className="sr-only">{lines.join(" ")}</span>}
+      {responsive && (
+        <span aria-hidden="true" className="block md:hidden">
+          {stack(linesSm!, "sm")}
         </span>
-      ))}
+      )}
+      <span
+        aria-hidden={responsive || undefined}
+        className={responsive ? "hidden md:block" : "block"}
+      >
+        {stack(lines, "lg")}
+      </span>
     </Component>
   );
 }

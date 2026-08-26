@@ -17,7 +17,8 @@ export default function FranchisePage() {
     <>
       <PageHeader
         eyebrow={franchise.eyebrow}
-        lines={["Run the counter", "in your city."]}
+        lines={["Run the counter in your city."]}
+        linesSm={["Run the counter", "in your city."]}
         standfirst={franchise.standfirst}
         aside={
           <dl className="mt-9 grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-[rgba(138,90,59,0.18)]">
@@ -37,8 +38,9 @@ export default function FranchisePage() {
         <p className="eyebrow">How it goes</p>
         <MaskReveal
           as="h2"
-          className="mt-5 max-w-[16ch] font-display text-h2 text-cocoa display-wonk"
-          lines={["Five steps,", "about four months."]}
+          className="mt-5 font-display text-h2 text-cocoa display-wonk"
+          lines={["Five steps, about four months."]}
+          linesSm={["Five steps,", "about four months."]}
         />
       </section>
 
@@ -49,8 +51,9 @@ export default function FranchisePage() {
           <p className="eyebrow">What you get</p>
           <MaskReveal
             as="h2"
-            className="mt-5 max-w-[18ch] font-display text-h2 text-cocoa display-wonk"
-            lines={["Not a logo file", "and good luck."]}
+            className="mt-5 font-display text-h2 text-cocoa display-wonk"
+            lines={["Not a logo file and good luck."]}
+            linesSm={["Not a logo file", "and good luck."]}
           />
 
           <ul className="mt-14 grid gap-px overflow-hidden rounded-2xl bg-[rgba(138,90,59,0.18)] md:grid-cols-2 lg:grid-cols-3">
@@ -74,8 +77,9 @@ export default function FranchisePage() {
         <div className="shell grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-20">
           <MaskReveal
             as="h2"
-            className="max-w-[14ch] font-display text-h2 text-cream display-wonk"
-            lines={["You will speak", "to the family,", "not a sales team."]}
+            className="font-display text-h2 text-cream display-wonk"
+            lines={["You will speak to the", "family, not a sales team."]}
+            linesSm={["You will speak", "to the family,", "not a sales team."]}
           />
           <Rise>
             <p className="text-[1.0625rem] leading-relaxed text-on-dark-muted">
