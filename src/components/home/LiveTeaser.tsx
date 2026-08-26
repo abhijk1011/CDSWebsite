@@ -13,14 +13,19 @@ const ROTATE_MS = 3200;
 export function LiveTeaser() {
   const reduced = usePrefersReducedMotion();
 
+  // Only dishes that have a picture take a turn. Photography arrives a few
+  // dishes at a time, and the rotation should grow with it rather than cut to
+  // a bare name whenever it reaches an item nobody has shot yet.
   const dishes = useMemo<Dish[]>(
     () =>
       menu.flatMap((section) =>
-        section.items.slice(0, 3).map((item) => ({
-          name: item.name,
-          section: section.name,
-          image: item.image,
-        })),
+        section.items
+          .filter((item) => item.image)
+          .map((item) => ({
+            name: item.name,
+            section: section.name,
+            image: item.image,
+          })),
       ),
     [],
   );
@@ -70,9 +75,11 @@ export function LiveTeaser() {
 
           <Rise index={1}>
             <p className="mt-7 max-w-lg text-[1.0625rem] leading-relaxed text-body">
-              Jalebi that has cooled is a different food. So is a pizza that sat
-              under a lamp. The kitchen at the back runs through the day, and
-              everything on this list is made after you order it.
+              A pani puri filled five minutes ago is a soggy thing, and a pizza
+              that sat under a lamp is a different food to one that did not. The
+              kitchen at the back runs through the day, and every one of the
+              {" "}
+              {count} items on this board is made after you order it.
             </p>
 
             <ul className="mt-8 flex flex-wrap gap-2">

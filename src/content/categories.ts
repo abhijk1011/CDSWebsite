@@ -50,7 +50,7 @@ export const groups: Group[] = [
 export const categories: Category[] = [
   {
     id: "sweets",
-    image: "/counters/sweets.svg",
+    image: "/counters/sweets.jpg",
     name: "Sweets",
     group: "Sweet counter",
     tagline: "Mithai, by the kilo",
@@ -73,7 +73,7 @@ export const categories: Category[] = [
   },
   {
     id: "live-sweets",
-    image: "/counters/live-sweets.svg",
+    image: "/counters/live-sweets.jpg",
     name: "Live sweets",
     group: "Sweet counter",
     tagline: "Made in front of you",
@@ -93,7 +93,7 @@ export const categories: Category[] = [
   },
   {
     id: "cakes",
-    image: "/counters/cakes.svg",
+    image: "/counters/cakes.jpg",
     name: "Cakes",
     group: "Sweet counter",
     tagline: "Built to your brief",
@@ -114,7 +114,7 @@ export const categories: Category[] = [
   },
   {
     id: "bakery",
-    image: "/counters/bakery.svg",
+    image: "/counters/bakery.jpg",
     name: "Bakery",
     group: "Sweet counter",
     tagline: "Out of the oven daily",
@@ -134,7 +134,7 @@ export const categories: Category[] = [
   },
   {
     id: "chocolate",
-    image: "/counters/chocolate.svg",
+    image: "/counters/chocolate.jpg",
     name: "Chocolate",
     group: "Sweet counter",
     tagline: "Indian and imported",
@@ -153,7 +153,7 @@ export const categories: Category[] = [
   },
   {
     id: "namkeen",
-    image: "/counters/namkeen.svg",
+    image: "/counters/namkeen.jpg",
     name: "Namkeen",
     group: "Farsan and snacks",
     tagline: "Gujarat, salted",
@@ -176,7 +176,7 @@ export const categories: Category[] = [
   },
   {
     id: "khakhra",
-    image: "/counters/khakhra.svg",
+    image: "/counters/khakhra.jpg",
     name: "Khakhra",
     group: "Farsan and snacks",
     tagline: "Pressed thin",
@@ -196,7 +196,7 @@ export const categories: Category[] = [
   },
   {
     id: "banana-chips",
-    image: "/counters/banana-chips.svg",
+    image: "/counters/banana-chips.jpg",
     name: "Banana chips",
     group: "Farsan and snacks",
     tagline: "Fried in coconut oil",
@@ -214,7 +214,7 @@ export const categories: Category[] = [
   },
   {
     id: "makhana",
-    image: "/counters/makhana.svg",
+    image: "/counters/makhana.jpg",
     name: "Makhana",
     group: "Farsan and snacks",
     tagline: "Roasted, not fried",
@@ -232,7 +232,7 @@ export const categories: Category[] = [
   },
   {
     id: "dry-fruits",
-    image: "/counters/dry-fruits.svg",
+    image: "/counters/dry-fruits.jpg",
     name: "Dry fruits",
     group: "Pantry and gifting",
     tagline: "Graded and dated",
@@ -255,7 +255,7 @@ export const categories: Category[] = [
   },
   {
     id: "saffron",
-    image: "/counters/saffron.svg",
+    image: "/counters/saffron.jpg",
     name: "Saffron",
     group: "Pantry and gifting",
     tagline: "Mongra and Sargol",
@@ -273,7 +273,7 @@ export const categories: Category[] = [
   },
   {
     id: "mouth-freshener",
-    image: "/counters/mouth-freshener.svg",
+    image: "/counters/mouth-freshener.jpg",
     name: "Mouth freshener",
     group: "Pantry and gifting",
     tagline: "The end of the meal",
@@ -292,7 +292,7 @@ export const categories: Category[] = [
   },
   {
     id: "imported",
-    image: "/counters/imported.svg",
+    image: "/counters/imported.jpg",
     name: "Imported shelf",
     group: "Imported aisle",
     tagline: "Flown in",
@@ -313,7 +313,7 @@ export const categories: Category[] = [
   },
   {
     id: "classic-sodas",
-    image: "/counters/classic-sodas.svg",
+    image: "/counters/classic-sodas.jpg",
     name: "Classic sodas",
     group: "Imported aisle",
     tagline: "Glass bottle only",
@@ -332,7 +332,7 @@ export const categories: Category[] = [
   },
   {
     id: "charliee",
-    image: "/counters/charliee.svg",
+    image: "/counters/charliee.jpg",
     name: "Charliee",
     group: "Charliee label",
     tagline: "Our own name on it",

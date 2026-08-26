@@ -1,46 +1,58 @@
 #!/usr/bin/env node
 /**
- * Generates one SVG per dish and per counter.
+ * Generates one JPEG per dish and per counter.
  *
  * These are stand ins for photography, not decoration for its own sake. Every
- * host that serves stock imagery is blocked by this environment's egress
- * policy, so rather than ship empty panels these are built locally from each
- * dish's real colours: jalebi is amber and syrup, pani puri is dark mint and
- * fried wheat, cold coffee is roast and cream. The result reads as abstract
- * food photography, every tile is visibly its own dish, and the whole set
- * weighs a few kilobytes.
+ * host that serves imagery is blocked by this environment's egress policy, so
+ * rather than ship empty panels these are built locally from each dish's real
+ * colours: a blue lagoon mojito is glass blue and lime, samosa chaat is fried
+ * pastry and tamarind, margherita is tomato, mozzarella and basil. The result
+ * reads as abstract food photography and every tile is visibly its own dish.
  *
- * Replace any file with a real photograph of the same name and nothing else
- * needs to change.
+ * They are written as JPEG, at the same aspect and under the same filename a
+ * real photograph would use, so replacing one is a matter of dropping the
+ * photograph over it. No code changes, no extension to update.
+ *
+ * Existing files are never overwritten. Pass --force to rebuild them, which
+ * will flatten any real photography already in place.
  */
-import { writeFileSync, mkdirSync } from "node:fs";
+import { mkdirSync, existsSync } from "node:fs";
+import sharp from "sharp";
 
-/** base, then two or three accents drawn from the actual food. */
+/** base, then three accents drawn from the actual food. */
 const DISHES = {
-  // Pizza
-  "margherita":        ["#E7C68D", ["#C0392B", "#F5E3B8", "#4E7B3A"]],
-  "corn-and-cheese":   ["#EBD49A", ["#E8B93B", "#F7EFD6", "#C99A2E"]],
-  "paneer-tikka":      ["#E0AE85", ["#C75B2E", "#F2E8DC", "#6B3A22"]],
-  // Sandwich and toast
-  "bombay-masala-toast": ["#E4CFA6", ["#5B7B3A", "#E8CFA0", "#B4762F"]],
-  "grilled-cheese":    ["#EBCF95", ["#E0B24D", "#F8EED4", "#B07A2A"]],
-  "paneer-tikka-grill":["#DFB491", ["#C75B2E", "#EFE2D2", "#7A4526"]],
   // Chaat
-  "pani-puri":         ["#CDBE97", ["#3E6B4A", "#D9B37A", "#7A5A34"]],
-  "sev-puri":          ["#DFC48C", ["#E3B34A", "#7A4A2A", "#EFE0BC"]],
-  "bhel-puri":         ["#E2D2AC", ["#EAD9B0", "#8A4B2A", "#C4A45E"]],
-  // From the tawa
-  "pav-bhaji":         ["#D9A184", ["#B33A22", "#F2D06B", "#7C3A1E"]],
-  "cheese-pav-bhaji":  ["#DFAE86", ["#B33A22", "#F6DE94", "#8A4526"]],
-  "vada-pav":          ["#DFB77E", ["#D99A3A", "#EFE0C0", "#7C4A22"]],
-  // Live sweets
-  "jalebi":            ["#EFC178", ["#E8951E", "#C97A16", "#FBE6BE"]],
-  "gulab-jamun":       ["#C79A6E", ["#6B3A1E", "#A45A24", "#E8CFA8"]],
-  "rasgulla":          ["#E8DFCC", ["#F7F3EA", "#D9CBAE", "#B9A681"]],
-  // Cold counter
-  "cold-coffee":       ["#C2A283", ["#4A3020", "#D9C3A5", "#8A6244"]],
-  "mango-shake":       ["#F0C574", ["#F0A828", "#FBE7BC", "#C97F1C"]],
-  "chocolate-shake":   ["#B08A6A", ["#52341F", "#D6BCA0", "#7C5334"]],
+  "pani-puri":           ["#CDBE97", ["#2F5E3E", "#D9B37A", "#7A5A34"]],
+  "masala-puri":         ["#D9C08E", ["#8A4B2A", "#E3B34A", "#3E6B4A"]],
+  "bhel-puri":           ["#E2D2AC", ["#EAD9B0", "#8A4B2A", "#C4A45E"]],
+  "sev-puri":            ["#DFC48C", ["#E3B34A", "#7A4A2A", "#EFE0BC"]],
+  "dahi-puri":           ["#E6DBC6", ["#F7F2E8", "#3E6B4A", "#8A4B2A"]],
+  "samosa-chaat":        ["#D8B584", ["#B4762F", "#7A3A1E", "#E6D2A8"]],
+  "ragda-pattice":       ["#DCC79B", ["#E0C070", "#8A5A2E", "#F0E3C4"]],
+  // Burger
+  "burger":              ["#DFB77E", ["#C0392B", "#4E7B3A", "#EFE0C0"]],
+  "cheese-burger":       ["#E2BC85", ["#E8B93B", "#C0392B", "#F7EFD6"]],
+  "peri-peri-burger":    ["#DDAE7C", ["#C4441E", "#E8B93B", "#7C3A1E"]],
+  // Sandwich
+  "veg-sandwich":        ["#E8DCC0", ["#5B7B3A", "#F5EEDC", "#C4553A"]],
+  "toast-sandwich":      ["#E4CFA6", ["#B4762F", "#E8CFA0", "#5B7B3A"]],
+  "cheese-chilli-toast": ["#EBCF95", ["#E0B24D", "#4E7B3A", "#F8EED4"]],
+  // Frankie
+  "veg-frankie":         ["#E0C79C", ["#C08A3A", "#C4441E", "#F2E2C2"]],
+  "veg-cheese-frankie":  ["#E4CB9C", ["#E8B93B", "#C08A3A", "#F6E8CC"]],
+  // Dabeli
+  "butter-dabeli":       ["#DDB483", ["#8A4526", "#C4441E", "#EFDDB8"]],
+  "cheese-dabeli":       ["#E0BB8A", ["#E8B93B", "#8A4526", "#F4E6C6"]],
+  // Pizza
+  "classic-margherita":  ["#E7C68D", ["#C0392B", "#F5E3B8", "#4E7B3A"]],
+  "four-cheese":         ["#EBD49A", ["#F7EFD6", "#E8B93B", "#C99A2E"]],
+  "peri-peri-pizza":     ["#E3B98A", ["#C4441E", "#F2E0BC", "#8A3A18"]],
+  "tandoori-pizza":      ["#E0AE85", ["#C75B2E", "#F2E8DC", "#6B3A22"]],
+  // Beverages
+  "mint-mojito":         ["#CFE0C0", ["#3E7B4A", "#EAF5E2", "#A8C88A"]],
+  "blue-lagoon-mojito":  ["#A8CFE0", ["#2E7FB8", "#E2F2FA", "#1A5A8A"]],
+  "sunset":              ["#E8B87E", ["#E8621E", "#F7D9A8", "#C4381E"]],
+  "guava-shots":         ["#E8C0B4", ["#D9607A", "#F7E2DA", "#A83A54"]],
 };
 
 /** The fifteen counters, coloured from what actually sits on them. */
@@ -75,10 +87,12 @@ function rng(seed) {
   };
 }
 
+/** Four by three, the same shape the generated photography comes back at. */
+const W = 1400, H = 1050;
+const CX = 700, CY = 525, PLATE = 372;
+
 function art(name, base, accents) {
   const r = rng(name);
-  const W = 1000, H = 1250;
-  const CX = 500, CY = 620, PLATE = 330;
 
   // Food arranged on a plate rather than a cloud of colour. Heavy blur turned
   // every dish into the same brown smudge, so the shapes stay mostly crisp
@@ -124,10 +138,6 @@ function art(name, base, accents) {
 <filter id="tiny" x="-25%" y="-25%" width="150%" height="150%">
 <feGaussianBlur stdDeviation="2.4"/>
 </filter>
-<filter id="grain">
-<feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="4" stitchTiles="stitch"/>
-<feColorMatrix type="saturate" values="0"/>
-</filter>
 <radialGradient id="vig" cx="50%" cy="46%" r="76%">
 <stop offset="0.5" stop-color="#3A231A" stop-opacity="0"/>
 <stop offset="1" stop-color="#3A231A" stop-opacity="0.4"/>
@@ -136,29 +146,41 @@ function art(name, base, accents) {
 </defs>
 <rect width="${W}" height="${H}" fill="#EFE0CB"/>
 <rect width="${W}" height="${H}" fill="url(#bg)"/>
-<circle cx="${CX}" cy="${CY}" r="${PLATE + 62}" fill="#FFFFFF" opacity="0.14"/>
-<circle cx="${CX}" cy="${CY}" r="${PLATE + 62}" fill="none" stroke="#3A231A" stroke-width="2" opacity="0.09"/>
+<circle cx="${CX}" cy="${CY}" r="${PLATE + 70}" fill="#FFFFFF" opacity="0.14"/>
+<circle cx="${CX}" cy="${CY}" r="${PLATE + 70}" fill="none" stroke="#3A231A" stroke-width="2" opacity="0.09"/>
 <circle cx="${CX}" cy="${CY}" r="${PLATE}" fill="url(#plate)"/>
 <g clip-path="url(#dish)">
 <g filter="url(#soft)">${pieces.join("")}</g>
 <g filter="url(#tiny)">${specks.join("")}</g>
 </g>
 <circle cx="${CX}" cy="${CY}" r="${PLATE}" fill="none" stroke="#FFFFFF" stroke-width="3" opacity="0.3"/>
-<rect width="${W}" height="${H}" filter="url(#grain)" opacity="0.14" style="mix-blend-mode:multiply"/>
 <rect width="${W}" height="${H}" fill="url(#vig)"/>
 </svg>`;
 }
 
-const write = (dir, table) => {
-  mkdirSync(dir, { recursive: true });
-  let n = 0;
-  for (const [name, [base, accents]] of Object.entries(table)) {
-    writeFileSync(`${dir}/${name}.svg`, art(name, base, accents));
-    n++;
-  }
-  return n;
-};
+const force = process.argv.includes("--force");
 
-const a = write("public/live", DISHES);
-const b = write("public/counters", COUNTERS);
-console.log(`Wrote ${a} dish panels and ${b} counter panels.`);
+async function write(dir, table) {
+  mkdirSync(dir, { recursive: true });
+  let written = 0, kept = 0;
+  for (const [name, [base, accents]] of Object.entries(table)) {
+    const file = `${dir}/${name}.jpg`;
+    if (existsSync(file) && !force) {
+      kept++;
+      continue;
+    }
+    await sharp(Buffer.from(art(name, base, accents)))
+      .jpeg({ quality: 82, progressive: true, mozjpeg: true })
+      .toFile(file);
+    written++;
+  }
+  return { written, kept };
+}
+
+const a = await write("public/live", DISHES);
+const b = await write("public/counters", COUNTERS);
+console.log(
+  `Dishes: wrote ${a.written}, left ${a.kept} in place. ` +
+  `Counters: wrote ${b.written}, left ${b.kept} in place.` +
+  (force ? " (forced)" : ""),
+);

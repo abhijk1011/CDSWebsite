@@ -2,7 +2,12 @@
 
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { menu, type MenuSection } from "@/content/live";
+import {
+  menu,
+  boardNotes,
+  pricesAsOf,
+  type MenuSection,
+} from "@/content/live";
 import { ease } from "@/lib/motion";
 import { useReveal } from "@/components/primitives/Reveal";
 
@@ -76,6 +81,28 @@ export function MenuBoard() {
             register={(el) => el && refs.current.set(section.id, el)}
           />
         ))}
+
+        {/* The small print sits at the foot of the real board, so it sits at
+            the foot of this one. */}
+        <footer className="border-t border-[rgba(138,90,59,0.18)] pt-8">
+          <ul className="space-y-2.5">
+            {boardNotes.map((note) => (
+              <li
+                key={note}
+                className="flex items-start gap-3 text-[0.875rem] text-caramel"
+              >
+                <span
+                  aria-hidden="true"
+                  className="mt-[0.5em] h-1.5 w-1.5 shrink-0 rounded-full bg-terracotta-600"
+                />
+                {note}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-6 text-[0.8125rem] text-caramel">
+            Prices read off the counter board in {pricesAsOf}.
+          </p>
+        </footer>
       </div>
     </div>
   );
@@ -122,6 +149,12 @@ function Section({
               {item.name}
             </span>
 
+            {item.hot && (
+              <span className="shrink-0 rounded-full bg-terracotta-100 px-3 py-1 text-[0.6875rem] tracking-[0.06em] text-cocoa">
+                Counter favourite
+              </span>
+            )}
+
             {item.note && (
               <span className="text-[0.8125rem] text-caramel">{item.note}</span>
             )}
@@ -131,16 +164,14 @@ function Section({
               className="mx-1 h-px min-w-6 flex-1 self-center border-b border-dotted border-[rgba(138,90,59,0.3)]"
             />
 
-            {item.hot ? (
-              <span className="shrink-0 rounded-full bg-terracotta-100 px-3 py-1 text-[0.6875rem] tracking-[0.06em] text-cocoa">
-                Counter favourite
-              </span>
-            ) : item.price ? (
+            {/* The price is the reason most people read a menu, so it is never
+                displaced by a badge the way it used to be. */}
+            {item.price && (
               <span className="shrink-0 tnum text-[0.9375rem] text-cocoa">
+                <span aria-hidden="true">₹</span>
+                <span className="sr-only">Rupees </span>
                 {item.price}
               </span>
-            ) : (
-              <span className="sr-only">Price on the board in store</span>
             )}
           </motion.li>
         ))}
