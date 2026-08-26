@@ -8,26 +8,27 @@ import { ease } from "@/lib/motion";
 import { usePrefersReducedMotion } from "@/lib/hooks";
 
 /**
- * The one dark feature band on this page. A third would make the scroll feel
- * heavy, so the footer takes the only other cocoa surface. Smoke gives this
- * block a second plane so it does not read as a flat slab.
+ * Cream, not cocoa. The arc carousel above is now the one dark feature band
+ * on this page and the footer takes the other cocoa surface, so a third dark
+ * block here would push the palette well past its allocation and make the
+ * whole scroll feel heavy.
  */
 export function StatBand() {
   const reveal = useReveal();
   return (
-    <section className="relative overflow-hidden bg-cocoa py-20 text-cream md:py-28">
+    <section className="relative overflow-hidden bg-cream py-20 md:py-28">
       <div className="shell">
         <MaskReveal
           as="h2"
-          className="max-w-[20ch] font-display text-h2 text-cream display-wonk"
+          className="max-w-[20ch] font-display text-h2 text-cocoa display-wonk"
           lines={["A shop is only", "as good as the day", "it is having."]}
         />
 
-        <div className="mt-14 grid gap-px overflow-hidden rounded-2xl bg-[rgba(253,248,242,0.14)] sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-14 grid gap-px overflow-hidden rounded-2xl bg-[rgba(138,90,59,0.18)] sm:grid-cols-2 lg:grid-cols-4">
           {about.stats.map((s, i) => (
-            <div key={s.label} className="bg-smoke p-7 md:p-8">
+            <div key={s.label} className="bg-clay p-7 md:p-8">
               <Counter value={s.value} suffix={s.suffix} index={i} />
-              <p className="mt-3 text-[0.9rem] leading-snug text-on-dark-muted">
+              <p className="mt-3 text-[0.9rem] leading-snug text-caramel">
                 {s.label}
               </p>
             </div>
@@ -35,7 +36,7 @@ export function StatBand() {
         </div>
 
         <motion.p
-          className="mt-12 max-w-2xl text-[1.0625rem] leading-relaxed text-on-dark-muted"
+          className="mt-12 max-w-2xl text-[1.0625rem] leading-relaxed text-body"
           variants={{
             hidden: { opacity: 0 },
             shown: { opacity: 1, transition: { duration: 0.7, ease: ease.out } },
@@ -79,7 +80,7 @@ function Counter({
   return (
     <p
       ref={ref}
-      className="font-display text-[clamp(2.5rem,6vw,3.75rem)] leading-none tnum text-cream display-wonk"
+      className="font-display text-[clamp(2.5rem,6vw,3.75rem)] leading-none tnum text-cocoa display-wonk"
     >
       {reduced ? value : shown}
       {suffix}

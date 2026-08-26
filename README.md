@@ -91,10 +91,78 @@ Signature pieces:
 
 - **Hero shelf** scrolls on its own and speeds up in whichever direction you
   are scrolling.
-- **Counter walk** pins the page and travels sideways on desktop, and becomes a
-  native snapping carousel on touch. Two behaviours, one set of markup.
+- **Arc carousel** carries the fifteen counters on the home page and on What
+  we sell. See below.
 - **Counter dialog** flies its mark from the tile into the panel.
 - **Franchise steps** stack as you scroll so earlier steps stay readable.
+
+## The arc carousel
+
+`src/components/counters/` holds the counter carousel. Cards ride the rim of a
+huge invisible circle whose centre sits far below the viewport, so only the top
+of the arc is visible and the row is cropped by the section edge.
+
+Per card, given `progress`:
+
+```
+angle   = wrap(i - progress) * GAP
+x       = R * sin(angle)
+y       = R * (1 - cos(angle))
+rotate  = angle                    // tangent to the arc
+scale   = 1 - abs(angleDeg) * 0.006
+```
+
+`wrap` folds the offset into a half open range around zero, which is what
+recycles the cards endlessly rather than running out at either end.
+
+Notes on the implementation, and where it departs from the obvious approach:
+
+- **Vanilla, not GSAP.** Draggable with inertia means the InertiaPlugin, which
+  is a paid Club GSAP plugin. A throw with friction is about twenty lines, so
+  the site takes no licence dependency for it.
+- **One rAF loop, no React re-renders.** Transforms are written straight onto
+  DOM nodes held in refs. A state update per frame across fifteen cards would
+  drop frames on a mid range phone and buy nothing.
+- **The loop pauses when the section is off screen.** Idle drift would
+  otherwise turn frames forever behind whatever the visitor is reading.
+- **Fading is measured in pixels from the centre of the screen, not degrees of
+  arc.** Degrees look right at one viewport width and wrong at every other
+  one, leaving a half faded card sitting in plain sight like a rendering bug.
+- **Pointer capture is claimed lazily**, only once a gesture passes six pixels.
+  Capturing on pointerdown retargets the click that follows onto the drag
+  surface, so a tap would never reach the card underneath.
+- **The vertical wheel is left alone.** Only horizontal wheel and trackpad
+  intent is claimed, and `touch-action: pan-y` lets a vertical swipe scroll the
+  page. Taking either would trap the visitor inside the section.
+- **Reduced motion** swaps the whole thing for a plain snapping row.
+
+Tuning lives in `readConfig()` in `ArcCarousel.tsx`: radius, gap, card width
+and the fade bounds, with separate values below 768px.
+
+### Adding video to the cards
+
+Each counter takes an optional `video` and `poster` in `src/content/categories.ts`:
+
+```ts
+{ id: "sweets", video: "/counters/sweets.mp4", poster: "/counters/sweets.jpg" }
+```
+
+Drop the files into `public/counters/`. Clips should be short, silent and a few
+seconds long. Only cards within about two positions of centre are played; the
+rest are paused, so a full set does not decode fifteen streams at once. Without
+a clip the card falls back to the counter's drawn mark, which is the current
+state of every card.
+
+### Checking it
+
+```bash
+node scripts/verify-arc.mjs
+```
+
+Drives a real browser and asserts that dragging moves the arc, that arrow keys
+and the buttons step it, that a still click opens the counter while a drag does
+not, that reduced motion renders the snapping row, and that nothing overflows
+horizontally at 320, 390, 768 and 1440.
 
 ## Checks
 

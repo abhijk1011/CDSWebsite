@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/chrome/PageHeader";
 import { CategoryGrid } from "@/components/sell/CategoryGrid";
+import { ArcCounters } from "@/components/counters/ArcCounters";
 import { categories, groups } from "@/content/categories";
 import { Marquee } from "@/components/primitives/Marquee";
 import { Mark } from "@/components/marks";
@@ -43,6 +44,20 @@ export default function WhatWeSellPage() {
           </dl>
         }
       />
+
+      <ArcCounters
+        eyebrow="The counters"
+        lines={["Every counter,", "on one arc."]}
+        intro="Drag through the whole shop. Open any counter to read what sits on it, or use the list below to jump straight to one."
+        showLink={false}
+      />
+
+      <section className="shell pt-20 pb-4 md:pt-28">
+        <p className="eyebrow">The full list</p>
+        <h2 className="mt-5 max-w-[18ch] font-display text-h2 text-cocoa display-wonk">
+          Or browse them the plain way.
+        </h2>
+      </section>
 
       <CategoryGrid />
 

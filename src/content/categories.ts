@@ -22,6 +22,14 @@ export type Category = {
   items: string[];
   /** Key into the mark set in src/components/marks.tsx */
   mark: string;
+  /**
+   * Optional short clip for the arc carousel. Muted, looping, a few seconds
+   * long. Drop files into /public/counters and set the paths here. Without
+   * one the card falls back to its drawn mark, which is the current state.
+   */
+  video?: string;
+  /** Still frame shown before the clip loads, and the fallback if it fails. */
+  poster?: string;
   /** Marks the handful of counters that carry the home page. */
   featured?: boolean;
 };
