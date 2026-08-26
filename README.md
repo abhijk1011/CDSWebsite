@@ -139,6 +139,24 @@ Notes on the implementation, and where it departs from the obvious approach:
 Tuning lives in `readConfig()` in `ArcCarousel.tsx`: radius, gap, card width
 and the fade bounds, with separate values below 768px.
 
+### The live panel on the home page
+
+The live section rotates through dishes, and the picture behind the name
+changes with it. Each menu item in `src/content/live.ts` takes an optional
+`image`:
+
+```ts
+{ name: "Pani puri", image: "/live/pani-puri.jpg" }
+```
+
+Drop the files into `public/live/`. Landscape or square both work, the panel
+crops to fill. On a laptop the panel takes the right of the section and its
+left edge is masked away so the photograph resolves into the background behind
+the copy; on a phone it becomes a card beneath the text, where a masked edge
+would eat the words. The mask is on the picture layer only, never on the dish
+name. Without a photograph the panel shows the name on a warm ground, which is
+a deliberate design rather than an empty slot.
+
 ### Adding video to the cards
 
 Each counter takes an optional `video` and `poster` in `src/content/categories.ts`:

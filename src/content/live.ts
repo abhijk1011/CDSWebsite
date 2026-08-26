@@ -12,6 +12,14 @@ export type MenuItem = {
   price?: string;
   /** Draws the small flame mark. Reserve it for genuine favourites. */
   hot?: boolean;
+  /**
+   * Photograph of the dish, shown on the home page live panel as the name
+   * rotates. Drop files into /public/live and set the path here, for example
+   * "/live/pani-puri.jpg". Landscape or square both work: the panel crops to
+   * fill. Without one the panel shows the dish name on a warm ground, which
+   * is the current state of every item.
+   */
+  image?: string;
 };
 
 export type MenuSection = {

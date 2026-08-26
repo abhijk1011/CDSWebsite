@@ -51,7 +51,6 @@ export default function WhatWeSellPage() {
         lines={["Every counter,", "on a single arc."]}
         intro="Drag through the whole shop. Open any counter to read what sits on it, or use the list below to jump straight to one."
         showLink={false}
-        blendTo="#FDF8F2"
       />
 
       <section className="shell pt-20 pb-4 md:pt-28">

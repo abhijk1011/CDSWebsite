@@ -11,78 +11,79 @@ import { ArcCard } from "./ArcCard";
  *
  * Everything moves through one rAF loop that writes transforms straight onto
  * DOM nodes held in refs. React renders the cards once and is then out of the
- * way entirely: a state update per frame across fifteen cards would drop
- * frames on a mid range phone for no benefit.
+ * way: a state update per frame across fifteen cards would drop frames on a
+ * mid range phone and buy nothing.
  *
- * Built on pointer events rather than GSAP Draggable. Inertia there means the
- * InertiaPlugin, which is a paid Club GSAP plugin, and a throw with friction
- * is about twenty lines of arithmetic.
+ * Built on pointer events rather than GSAP Draggable, whose inertia lives in
+ * the paid Club InertiaPlugin. A throw with friction is twenty lines.
  */
 
 const DEG = Math.PI / 180;
+const clamp01 = (n: number) => (n < 0 ? 0 : n > 1 ? 1 : n);
+const clamp = (n: number, lo: number, hi: number) =>
+  n < lo ? lo : n > hi ? hi : n;
+
+export type ArcApi = { step: (by: number) => void };
 
 type Config = {
   radius: number;
   gap: number; // radians between adjacent cards
+  gapDeg: number;
   cardW: number;
-  /** Distance from the top of the arc viewport to the centre card. */
   topPx: number;
-  /** Horizontal distance from centre, in px, where a card starts to fade. */
   fadeStart: number;
-  /** Horizontal distance where it is fully gone. */
   fadeEnd: number;
 };
 
 /**
- * Card size is derived from the height available to the arc, not from the
+ * Card size is derived from the height the arc actually has, not from the
  * screen width alone. A card sized only by width overflows a short laptop
- * window, and the first thing to go over the bottom edge is the caption that
- * names the counter, which is the one part of the card that has to survive.
+ * window, and the first thing over the edge is the caption naming the counter.
  *
- * A strip is reserved at the bottom for the controls and for the gradient
- * that merges this section into the next, so neither ever lands on a card.
- *
- * The fade is measured in pixels from the centre of the screen rather than in
- * degrees of arc. Degrees look right at one viewport width and wrong at every
- * other one, leaving a half faded card in plain sight like a rendering bug.
+ * Spacing is expressed as a fraction of card width rather than a fixed number
+ * of degrees. A fixed angle means bigger cards fly further apart and only
+ * three ever fit on screen; holding the step proportional keeps the same fan
+ * whatever size the cards end up.
  */
 function readConfig(viewportH: number): Config {
   const w = window.innerWidth;
   const mobile = w < 768;
 
-  // The bottom strip, from the section edge upward: an 80px merge gradient,
-  // then the controls at 96px up and 44px tall, then breathing room. Cards
-  // must stop above all of it, so a short window shrinks the cards rather
-  // than letting the controls land on top of them.
-  const reserve = Math.max(158, Math.min(184, viewportH * 0.28));
-  const topPx = Math.round(viewportH * 0.05);
-  const available = Math.max(180, viewportH - topPx - reserve);
+  const topPx = Math.round(viewportH * 0.035);
+  const available = Math.max(200, viewportH - topPx - 24);
 
-  const widthCap = mobile ? Math.min(w * 0.7, 300) : 340;
+  const widthCap = mobile ? Math.min(w * 0.74, 360) : 440;
   // Cards are 3/4 portrait, so the height budget caps width at 0.75 of it.
-  const cardW = Math.max(140, Math.min(widthCap, available * 0.75));
+  const cardW = Math.max(150, Math.min(widthCap, available * 0.75));
+
+  const radius = cardW * (mobile ? 5 : 6.4);
+  // Cards sit just clear of each other. Any tighter and the centre card hides
+  // its neighbours' captions, which are the part naming the counter.
+  const stepPx = cardW * (mobile ? 1.08 : 1.04);
+  const gap = stepPx / radius;
 
   const halfW = w / 2;
   return {
-    // Radius tracks card size so the spacing between cards stays in
-    // proportion however large or small they end up.
-    radius: cardW * (mobile ? 4.6 : 6.6),
-    gap: (mobile ? 16 : 10) * DEG,
+    radius,
+    gap,
+    gapDeg: gap / DEG,
     cardW,
     topPx,
-    fadeStart: halfW * 0.75,
-    fadeEnd: halfW + cardW * 0.4,
+    fadeStart: halfW * 0.72,
+    fadeEnd: halfW + cardW * 0.45,
   };
 }
-
-const clamp01 = (n: number) => (n < 0 ? 0 : n > 1 ? 1 : n);
 
 export function ArcCarousel({
   items,
   onSelect,
+  onActiveChange,
+  apiRef,
 }: {
   items: Category[];
   onSelect: (id: string) => void;
+  onActiveChange?: (index: number) => void;
+  apiRef?: React.RefObject<ArcApi | null>;
 }) {
   const reduced = usePrefersReducedMotion();
 
@@ -95,26 +96,15 @@ export function ArcCarousel({
   const current = useRef(0);
   const target = useRef(0);
   const velocity = useRef(0);
+  const lean = useRef(0);
   const config = useRef<Config | null>(null);
   const engaged = useRef(false);
   const dragging = useRef(false);
   const dragDistance = useRef(0);
+  const activeIndex = useRef(-1);
+  const swept = useRef(false);
 
   const count = items.length;
-
-  /** Centre a card. Used by keyboard nav and by focus. */
-  const goTo = useCallback(
-    (index: number) => {
-      engaged.current = true;
-      // Travel the short way round rather than unwinding the whole loop.
-      let delta = index - (target.current % count);
-      if (delta > count / 2) delta -= count;
-      if (delta < -count / 2) delta += count;
-      target.current += delta;
-      velocity.current = 0;
-    },
-    [count],
-  );
 
   const step = useCallback(
     (by: number) => {
@@ -124,6 +114,22 @@ export function ArcCarousel({
     },
     [],
   );
+
+  const goTo = useCallback(
+    (index: number) => {
+      engaged.current = true;
+      let delta = index - (target.current % count);
+      if (delta > count / 2) delta -= count;
+      if (delta < -count / 2) delta += count;
+      target.current += delta;
+      velocity.current = 0;
+    },
+    [count],
+  );
+
+  useEffect(() => {
+    if (apiRef) apiRef.current = { step };
+  }, [apiRef, step]);
 
   useEffect(() => {
     if (reduced) return;
@@ -141,9 +147,9 @@ export function ArcCarousel({
         el.style.marginLeft = `${-cfg.cardW / 2}px`;
         el.style.top = `${cfg.topPx}px`;
         // The card sets its own root size and everything inside it is in em,
-        // so a card that shrinks to fit a short window keeps its proportions
-        // instead of wearing type meant for a card half again as wide.
-        el.style.fontSize = `${(cfg.cardW / 320) * 16}px`;
+        // so a card that shrinks to fit keeps its proportions rather than
+        // wearing type meant for a card half again as wide.
+        el.style.fontSize = `${(cfg.cardW / 400) * 16}px`;
       }
     };
 
@@ -154,8 +160,6 @@ export function ArcCarousel({
     applySizing();
     window.addEventListener("resize", onResize);
 
-    // The arc viewport changes height whenever the heading above it rewraps,
-    // which a window resize listener alone does not catch.
     const heightObserver = new ResizeObserver(onResize);
     if (viewport.current) heightObserver.observe(viewport.current);
 
@@ -166,15 +170,15 @@ export function ArcCarousel({
     const render = () => {
       const cfg = config.current;
       if (!cfg) return;
-      const { radius, gap, fadeStart, fadeEnd } = cfg;
-      const gapDeg = gap / DEG;
+      const { radius, gap, gapDeg, fadeStart, fadeEnd } = cfg;
       const progress = current.current;
+      const leanDeg = lean.current;
 
       for (let i = 0; i < count; i++) {
         const el = cards.current[i];
         if (!el) continue;
 
-        // Wrap the offset into [-count/2, count/2) so cards recycle forever.
+        // Wrap the offset into a half open range so cards recycle forever.
         let offset = i - progress;
         offset = ((offset % count) + count) % count;
         if (offset > count / 2) offset -= count;
@@ -185,25 +189,30 @@ export function ArcCarousel({
 
         const x = radius * Math.sin(angle);
         const y = radius * (1 - Math.cos(angle));
-        const scale = 1 - absDeg * 0.006;
+
+        // The card nearest the centre lifts and grows a little, so the eye
+        // is told where to look without anything having to flash.
+        const centred = Math.max(0, 1 - absDeg / (gapDeg * 0.95));
+        const lift = centred * 18;
+        const scale = 1 - absDeg * 0.004 + centred * 0.04;
+
         const opacity =
           1 - clamp01((Math.abs(x) - fadeStart) / (fadeEnd - fadeStart));
 
         el.style.transform =
-          `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) ` +
-          `rotate(${deg.toFixed(3)}deg) scale(${scale.toFixed(4)})`;
+          `translate3d(${x.toFixed(2)}px, ${(y - lift).toFixed(2)}px, 0) ` +
+          `rotate(${(deg + leanDeg).toFixed(3)}deg) scale(${scale.toFixed(4)})`;
         el.style.opacity = opacity.toFixed(3);
         el.style.zIndex = String(1000 - Math.round(absDeg * 10));
-        // Fully faded cards must stay in the tab order, so they keep their
-        // box and only stop swallowing clicks.
+        // Faded cards stay in the tab order and only stop swallowing clicks.
         el.style.pointerEvents = opacity < 0.06 ? "none" : "";
 
         const shade = shades.current[i];
         if (shade) {
-          shade.style.opacity = (clamp01(absDeg / 34) * 0.62).toFixed(3);
+          shade.style.opacity = (clamp01(absDeg / 26) * 0.6).toFixed(3);
         }
 
-        // Only the cards near the centre are worth decoding.
+        // Only cards near the centre are worth decoding.
         const video = videos.current[i];
         if (video) {
           const near = absDeg < gapDeg * 2.2;
@@ -214,16 +223,19 @@ export function ArcCarousel({
           }
         }
       }
+
+      const nextActive = ((Math.round(progress) % count) + count) % count;
+      if (nextActive !== activeIndex.current) {
+        activeIndex.current = nextActive;
+        onActiveChange?.(nextActive);
+      }
     };
 
     const frame = (now: number) => {
       const dt = Math.min(now - last, 64);
       last = now;
 
-      if (!engaged.current) {
-        // Idle drift, until someone touches it.
-        target.current += dt * 0.00007;
-      }
+      if (!engaged.current) target.current += dt * 0.00007;
 
       if (!dragging.current && velocity.current !== 0) {
         target.current += velocity.current * dt;
@@ -231,18 +243,23 @@ export function ArcCarousel({
         if (Math.abs(velocity.current) < 0.00002) velocity.current = 0;
       }
 
-      // Framerate independent lerp, so a 120Hz screen feels like a 60Hz one.
+      // Framerate independent lerp, so 120Hz feels like 60Hz.
       const base = dragging.current ? 0.3 : 0.08;
       const k = 1 - Math.pow(1 - base, dt / 16.667);
       current.current += (target.current - current.current) * k;
+
+      // The fan leans into whichever way it is travelling and rights itself
+      // as it settles. Weight has to go somewhere when you throw something.
+      const speed = (target.current - current.current) * 60;
+      const leanTarget = clamp(speed * 2.6, -7, 7);
+      lean.current += (leanTarget - lean.current) * (1 - Math.pow(0.88, dt / 16.667));
 
       render();
       raf = requestAnimationFrame(frame);
     };
 
-    // The loop is only worth running while the section is on screen. Idle
-    // drift means it would otherwise turn frames forever behind whatever the
-    // visitor is actually reading, which costs battery for nothing.
+    // Only worth running while the section is on screen. Idle drift would
+    // otherwise turn frames forever behind whatever is actually being read.
     const start = () => {
       if (running) return;
       running = true;
@@ -256,7 +273,20 @@ export function ArcCarousel({
     };
 
     const io = new IntersectionObserver(
-      ([entry]) => (entry.isIntersecting ? start() : stop()),
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          // First time in view, the fan sweeps into place rather than
+          // being there already when you arrive.
+          if (!swept.current) {
+            swept.current = true;
+            current.current = target.current - 1.6;
+            lean.current = 5;
+          }
+          start();
+        } else {
+          stop();
+        }
+      },
       { rootMargin: "200px" },
     );
     if (viewport.current) io.observe(viewport.current);
@@ -268,7 +298,7 @@ export function ArcCarousel({
       heightObserver.disconnect();
       window.removeEventListener("resize", onResize);
     };
-  }, [count, reduced]);
+  }, [count, reduced, onActiveChange]);
 
   // ---- Pointer drag -------------------------------------------------------
   const pointerId = useRef<number | null>(null);
@@ -294,8 +324,7 @@ export function ArcCarousel({
     captured.current = false;
     // Capture is claimed lazily, in onPointerMove, once the gesture is
     // clearly a drag. Capturing on pointerdown retargets the click that
-    // follows onto this container, so a plain tap would never reach the
-    // card button underneath and the counter would refuse to open.
+    // follows onto this container, so a tap would never reach the card.
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
@@ -312,8 +341,6 @@ export function ArcCarousel({
 
     const delta = -dx * unitsPerPixel();
     target.current += delta;
-    // Keep a running read of throw speed, smoothed so one stray frame
-    // cannot define the release.
     velocity.current = velocity.current * 0.7 + (delta / dt) * 0.3;
 
     lastX.current = e.clientX;
@@ -329,8 +356,8 @@ export function ArcCarousel({
 
   const onWheel = (e: React.WheelEvent) => {
     if (reduced) return;
-    // Only claim horizontal intent. Taking the vertical wheel would trap the
-    // page inside this section, which is a worse sin than missing a gesture.
+    // Only horizontal intent is claimed. Taking the vertical wheel would trap
+    // the page inside this section, which is worse than missing a gesture.
     if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
     engaged.current = true;
     velocity.current = 0;
@@ -354,17 +381,15 @@ export function ArcCarousel({
         role="region"
         aria-roledescription="carousel"
         aria-label="The counters at CDS"
-        className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-[var(--spacing-gutter)] pb-6"
+        className="flex h-full snap-x snap-mandatory items-center gap-4 overflow-x-auto px-[var(--spacing-gutter)]"
         style={{ scrollPaddingInline: "var(--spacing-gutter)" }}
       >
         {items.map((item, i) => (
-          <div key={item.id} className="w-[70vw] max-w-[320px] shrink-0 snap-start">
-            <ArcCard
-              item={item}
-              index={i}
-              onOpen={() => onSelect(item.id)}
-              onFocus={() => {}}
-            />
+          <div
+            key={item.id}
+            className="w-[74vw] max-w-[340px] shrink-0 snap-start"
+          >
+            <ArcCard item={item} index={i} onOpen={() => onSelect(item.id)} onFocus={() => {}} />
           </div>
         ))}
       </div>
@@ -372,92 +397,47 @@ export function ArcCarousel({
   }
 
   return (
-    <div className="relative h-full w-full">
-      <div
-        ref={viewport}
-        role="region"
-        aria-roledescription="carousel"
-        aria-label="The counters at CDS"
-        tabIndex={-1}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
-        onWheel={onWheel}
-        onKeyDown={onKeyDown}
-        className="absolute inset-0 cursor-grab touch-pan-y select-none active:cursor-grabbing"
-      >
-        {items.map((item, i) => (
-          <div
-            key={item.id}
-            ref={(el) => {
-              cards.current[i] = el;
-            }}
-            className="absolute left-1/2 top-0 will-change-transform"
-            style={{ width: 320, marginLeft: -160 }}
-          >
-            <ArcCard
-              item={item}
-              index={i}
-              videoRef={(el) => {
-                videos.current[i] = el;
-              }}
-              shadeRef={(el) => {
-                shades.current[i] = el;
-              }}
-              onOpen={() => {
-                // A throw ends with a pointerup too, so only a still pointer
-                // counts as a click.
-                if (dragDistance.current > 6) return;
-                onSelect(item.id);
-              }}
-              onFocus={() => goTo(i)}
-            />
-          </div>
-        ))}
-      </div>
-
-      {/* Visible controls. A carousel with no affordance is a carousel most
-          people never touch, and these give keyboard users a real target.
-          The scrim keeps them legible where a card caption sits behind. */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-6 z-[2000] flex items-center justify-center gap-3 md:bottom-6">
-        <button
-          type="button"
-          onClick={() => step(-1)}
-          aria-label="Previous counter"
-          className="pointer-events-auto inline-flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(253,248,242,0.3)] text-cream transition-[background-color,border-color,transform] duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] hover:border-[rgba(253,248,242,0.6)] hover:bg-[rgba(253,248,242,0.1)] active:scale-[0.95]"
-        >
-          <Chevron className="rotate-180" />
-        </button>
-        <span className="hidden text-[0.75rem] tracking-[0.16em] text-on-dark-muted uppercase sm:block">
-          Drag to explore
-        </span>
-        <button
-          type="button"
-          onClick={() => step(1)}
-          aria-label="Next counter"
-          className="pointer-events-auto inline-flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(253,248,242,0.3)] text-cream transition-[background-color,border-color,transform] duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] hover:border-[rgba(253,248,242,0.6)] hover:bg-[rgba(253,248,242,0.1)] active:scale-[0.95]"
-        >
-          <Chevron />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function Chevron({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 16 16"
-      className={`h-3.5 w-3.5 ${className}`}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
+    <div
+      ref={viewport}
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="The counters at CDS"
+      tabIndex={-1}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={endDrag}
+      onPointerCancel={endDrag}
+      onWheel={onWheel}
+      onKeyDown={onKeyDown}
+      className="relative h-full w-full cursor-grab touch-pan-y select-none overflow-hidden active:cursor-grabbing"
     >
-      <path d="M6 3l5 5-5 5" />
-    </svg>
+      {items.map((item, i) => (
+        <div
+          key={item.id}
+          ref={(el) => {
+            cards.current[i] = el;
+          }}
+          className="absolute left-1/2 top-0 will-change-transform"
+          style={{ width: 400, marginLeft: -200 }}
+        >
+          <ArcCard
+            item={item}
+            index={i}
+            videoRef={(el) => {
+              videos.current[i] = el;
+            }}
+            shadeRef={(el) => {
+              shades.current[i] = el;
+            }}
+            onOpen={() => {
+              // A throw ends in a pointerup too, so only a still pointer counts.
+              if (dragDistance.current > 6) return;
+              onSelect(item.id);
+            }}
+            onFocus={() => goTo(i)}
+          />
+        </div>
+      ))}
+    </div>
   );
 }
