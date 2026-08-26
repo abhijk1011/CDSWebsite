@@ -49,6 +49,27 @@ export function ArcCard({
             tabIndex={-1}
             aria-hidden="true"
           />
+        ) : item.image ? (
+          /* The drawn mark stays, standing on the counter's own ground. The
+             ground alone reads as an abstract smudge and the mark alone gives
+             every card the same colour, so the card carries both. Swap the
+             ground for a photograph and the mark can come out. */
+          <span className="relative block h-full w-full">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={item.image}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-[620ms] ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:scale-[1.04]"
+              loading="lazy"
+              decoding="async"
+            />
+            <span className="absolute inset-0 flex items-center justify-center">
+              <Mark
+                name={item.mark}
+                className="h-[34%] w-[34%] text-cocoa/70 transition-transform duration-[520ms] ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:scale-[1.06]"
+              />
+            </span>
+          </span>
         ) : (
           <span className="flex h-full w-full items-center justify-center bg-linear-to-b from-clay to-terracotta-100">
             <Mark

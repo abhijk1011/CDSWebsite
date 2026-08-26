@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1250" width="1000" height="1250">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="0.35" y2="1">
+<stop offset="0" stop-color="#B58F6E"/>
+<stop offset="1" stop-color="#B58F6E" stop-opacity="0.62"/>
+</linearGradient>
+<radialGradient id="plate" cx="45%" cy="38%" r="70%">
+<stop offset="0" stop-color="#FFFFFF" stop-opacity="0.5"/>
+<stop offset="1" stop-color="#FFFFFF" stop-opacity="0.12"/>
+</radialGradient>
+<filter id="soft" x="-25%" y="-25%" width="150%" height="150%">
+<feGaussianBlur stdDeviation="13"/>
+</filter>
+<filter id="tiny" x="-25%" y="-25%" width="150%" height="150%">
+<feGaussianBlur stdDeviation="2.4"/>
+</filter>
+<filter id="grain">
+<feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="4" stitchTiles="stitch"/>
+<feColorMatrix type="saturate" values="0"/>
+</filter>
+<radialGradient id="vig" cx="50%" cy="46%" r="76%">
+<stop offset="0.5" stop-color="#3A231A" stop-opacity="0"/>
+<stop offset="1" stop-color="#3A231A" stop-opacity="0.4"/>
+</radialGradient>
+<clipPath id="dish"><circle cx="500" cy="620" r="330"/></clipPath>
+</defs>
+<rect width="1000" height="1250" fill="#EFE0CB"/>
+<rect width="1000" height="1250" fill="url(#bg)"/>
+<circle cx="500" cy="620" r="392" fill="#FFFFFF" opacity="0.14"/>
+<circle cx="500" cy="620" r="392" fill="none" stroke="#3A231A" stroke-width="2" opacity="0.09"/>
+<circle cx="500" cy="620" r="330" fill="url(#plate)"/>
+<g clip-path="url(#dish)">
+<g filter="url(#soft)"><circle cx="595" cy="639" r="113" fill="#52341F" opacity="0.90"/><circle cx="518" cy="714" r="87" fill="#D9BC9C" opacity="0.85"/><circle cx="433" cy="644" r="129" fill="#7C5334" opacity="0.68"/><circle cx="443" cy="604" r="119" fill="#52341F" opacity="0.83"/><circle cx="450" cy="513" r="102" fill="#D9BC9C" opacity="0.84"/><circle cx="521" cy="613" r="66" fill="#7C5334" opacity="0.87"/></g>
+<g filter="url(#tiny)"><circle cx="565" cy="537" r="4.8" fill="#52341F" opacity="0.35"/><circle cx="464" cy="369" r="5.6" fill="#52341F" opacity="0.52"/><circle cx="263" cy="742" r="3.5" fill="#52341F" opacity="0.30"/><circle cx="499" cy="621" r="3.1" fill="#D9BC9C" opacity="0.36"/><circle cx="487" cy="603" r="2.3" fill="#7C5334" opacity="0.67"/><circle cx="548" cy="513" r="8.5" fill="#7C5334" opacity="0.66"/><circle cx="431" cy="538" r="5.1" fill="#52341F" opacity="0.42"/><circle cx="287" cy="758" r="2.9" fill="#52341F" opacity="0.55"/><circle cx="511" cy="591" r="3.0" fill="#D9BC9C" opacity="0.45"/><circle cx="399" cy="600" r="6.7" fill="#7C5334" opacity="0.36"/><circle cx="222" cy="561" r="6.2" fill="#D9BC9C" opacity="0.74"/><circle cx="676" cy="451" r="4.3" fill="#D9BC9C" opacity="0.34"/><circle cx="489" cy="615" r="2.8" fill="#52341F" opacity="0.43"/><circle cx="401" cy="547" r="2.2" fill="#7C5334" opacity="0.34"/><circle cx="270" cy="485" r="7.8" fill="#D9BC9C" opacity="0.64"/><circle cx="495" cy="447" r="8.2" fill="#52341F" opacity="0.63"/><circle cx="581" cy="572" r="7.4" fill="#52341F" opacity="0.30"/><circle cx="731" cy="737" r="7.2" fill="#7C5334" opacity="0.34"/><circle cx="588" cy="813" r="3.3" fill="#D9BC9C" opacity="0.74"/><circle cx="198" cy="632" r="2.8" fill="#52341F" opacity="0.52"/><circle cx="383" cy="553" r="7.8" fill="#D9BC9C" opacity="0.61"/><circle cx="403" cy="616" r="7.7" fill="#D9BC9C" opacity="0.72"/><circle cx="788" cy="551" r="5.0" fill="#D9BC9C" opacity="0.38"/><circle cx="546" cy="710" r="3.5" fill="#7C5334" opacity="0.39"/><circle cx="532" cy="597" r="4.5" fill="#D9BC9C" opacity="0.40"/><circle cx="515" cy="496" r="6.9" fill="#52341F" opacity="0.38"/><circle cx="268" cy="615" r="2.9" fill="#52341F" opacity="0.35"/><circle cx="418" cy="830" r="8.5" fill="#D9BC9C" opacity="0.67"/><circle cx="557" cy="517" r="8.5" fill="#52341F" opacity="0.56"/><circle cx="504" cy="493" r="2.9" fill="#7C5334" opacity="0.55"/><circle cx="301" cy="424" r="3.6" fill="#52341F" opacity="0.54"/><circle cx="426" cy="566" r="6.3" fill="#52341F" opacity="0.73"/><circle cx="503" cy="630" r="4.0" fill="#7C5334" opacity="0.57"/><circle cx="627" cy="783" r="5.8" fill="#7C5334" opacity="0.58"/></g>
+</g>
+<circle cx="500" cy="620" r="330" fill="none" stroke="#FFFFFF" stroke-width="3" opacity="0.3"/>
+<rect width="1000" height="1250" filter="url(#grain)" opacity="0.14" style="mix-blend-mode:multiply"/>
+<rect width="1000" height="1250" fill="url(#vig)"/>
+</svg>

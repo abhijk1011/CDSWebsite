@@ -23,6 +23,11 @@ export type Category = {
   /** Key into the mark set in src/components/marks.tsx */
   mark: string;
   /**
+   * Photograph for the arc carousel card. Falls back to the drawn mark when
+   * absent. Files live in /public/counters.
+   */
+  image?: string;
+  /**
    * Optional short clip for the arc carousel. Muted, looping, a few seconds
    * long. Drop files into /public/counters and set the paths here. Without
    * one the card falls back to its drawn mark, which is the current state.
@@ -45,6 +50,7 @@ export const groups: Group[] = [
 export const categories: Category[] = [
   {
     id: "sweets",
+    image: "/counters/sweets.svg",
     name: "Sweets",
     group: "Sweet counter",
     tagline: "Mithai, by the kilo",
@@ -67,6 +73,7 @@ export const categories: Category[] = [
   },
   {
     id: "live-sweets",
+    image: "/counters/live-sweets.svg",
     name: "Live sweets",
     group: "Sweet counter",
     tagline: "Made in front of you",
@@ -86,6 +93,7 @@ export const categories: Category[] = [
   },
   {
     id: "cakes",
+    image: "/counters/cakes.svg",
     name: "Cakes",
     group: "Sweet counter",
     tagline: "Built to your brief",
@@ -106,6 +114,7 @@ export const categories: Category[] = [
   },
   {
     id: "bakery",
+    image: "/counters/bakery.svg",
     name: "Bakery",
     group: "Sweet counter",
     tagline: "Out of the oven daily",
@@ -125,6 +134,7 @@ export const categories: Category[] = [
   },
   {
     id: "chocolate",
+    image: "/counters/chocolate.svg",
     name: "Chocolate",
     group: "Sweet counter",
     tagline: "Indian and imported",
@@ -143,6 +153,7 @@ export const categories: Category[] = [
   },
   {
     id: "namkeen",
+    image: "/counters/namkeen.svg",
     name: "Namkeen",
     group: "Farsan and snacks",
     tagline: "Gujarat, salted",
@@ -165,6 +176,7 @@ export const categories: Category[] = [
   },
   {
     id: "khakhra",
+    image: "/counters/khakhra.svg",
     name: "Khakhra",
     group: "Farsan and snacks",
     tagline: "Pressed thin",
@@ -184,6 +196,7 @@ export const categories: Category[] = [
   },
   {
     id: "banana-chips",
+    image: "/counters/banana-chips.svg",
     name: "Banana chips",
     group: "Farsan and snacks",
     tagline: "Fried in coconut oil",
@@ -201,6 +214,7 @@ export const categories: Category[] = [
   },
   {
     id: "makhana",
+    image: "/counters/makhana.svg",
     name: "Makhana",
     group: "Farsan and snacks",
     tagline: "Roasted, not fried",
@@ -218,6 +232,7 @@ export const categories: Category[] = [
   },
   {
     id: "dry-fruits",
+    image: "/counters/dry-fruits.svg",
     name: "Dry fruits",
     group: "Pantry and gifting",
     tagline: "Graded and dated",
@@ -240,6 +255,7 @@ export const categories: Category[] = [
   },
   {
     id: "saffron",
+    image: "/counters/saffron.svg",
     name: "Saffron",
     group: "Pantry and gifting",
     tagline: "Mongra and Sargol",
@@ -257,6 +273,7 @@ export const categories: Category[] = [
   },
   {
     id: "mouth-freshener",
+    image: "/counters/mouth-freshener.svg",
     name: "Mouth freshener",
     group: "Pantry and gifting",
     tagline: "The end of the meal",
@@ -275,6 +292,7 @@ export const categories: Category[] = [
   },
   {
     id: "imported",
+    image: "/counters/imported.svg",
     name: "Imported shelf",
     group: "Imported aisle",
     tagline: "Flown in",
@@ -295,6 +313,7 @@ export const categories: Category[] = [
   },
   {
     id: "classic-sodas",
+    image: "/counters/classic-sodas.svg",
     name: "Classic sodas",
     group: "Imported aisle",
     tagline: "Glass bottle only",
@@ -313,6 +332,7 @@ export const categories: Category[] = [
   },
   {
     id: "charliee",
+    image: "/counters/charliee.svg",
     name: "Charliee",
     group: "Charliee label",
     tagline: "Our own name on it",

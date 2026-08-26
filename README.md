@@ -139,6 +139,20 @@ Notes on the implementation, and where it departs from the obvious approach:
 Tuning lives in `readConfig()` in `ArcCarousel.tsx`: radius, gap, card width
 and the fade bounds, with separate values below 768px.
 
+### Placeholder artwork
+
+`public/live` and `public/counters` currently hold generated SVG panels, one
+per dish and one per counter, built by `scripts/make-dish-art.mjs` from each
+item's real colours. They are stand ins, not photography: every stock image
+host is blocked by the build environment's egress policy, so rather than ship
+empty panels the set is generated locally. Each one is deterministic from its
+name, and the whole set weighs under 300KB.
+
+Replace any file with a real photograph of the same name and nothing else has
+to change. Drop the JPEGs in, delete the matching SVG, and update the path in
+the content file if the extension differs. Once real photographs are in place
+the drawn mark can come off the counter cards, in `ArcCard.tsx`.
+
 ### The live panel on the home page
 
 The live section rotates through dishes, and the picture behind the name
