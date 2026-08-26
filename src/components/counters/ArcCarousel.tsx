@@ -25,6 +25,8 @@ type Config = {
   radius: number;
   gap: number; // radians between adjacent cards
   cardW: number;
+  /** Distance from the top of the arc viewport to the centre card. */
+  topPx: number;
   /** Horizontal distance from centre, in px, where a card starts to fade. */
   fadeStart: number;
   /** Horizontal distance where it is fully gone. */
@@ -32,26 +34,42 @@ type Config = {
 };
 
 /**
- * The fade is measured in pixels from the centre of the screen, not in
+ * Card size is derived from the height available to the arc, not from the
+ * screen width alone. A card sized only by width overflows a short laptop
+ * window, and the first thing to go over the bottom edge is the caption that
+ * names the counter, which is the one part of the card that has to survive.
+ *
+ * A strip is reserved at the bottom for the controls and for the gradient
+ * that merges this section into the next, so neither ever lands on a card.
+ *
+ * The fade is measured in pixels from the centre of the screen rather than in
  * degrees of arc. Degrees look right at one viewport width and wrong at every
- * other one: a card can sit half faded in plain sight on a wide monitor and
- * read as a ghost. Tying it to the actual screen edge means a card only ever
- * fades once it has left, at any size.
+ * other one, leaving a half faded card in plain sight like a rendering bug.
  */
-function readConfig(): Config {
+function readConfig(viewportH: number): Config {
   const w = window.innerWidth;
   const mobile = w < 768;
-  const cardW = mobile ? Math.min(w * 0.68, 300) : 320;
+
+  // The bottom strip, from the section edge upward: an 80px merge gradient,
+  // then the controls at 96px up and 44px tall, then breathing room. Cards
+  // must stop above all of it, so a short window shrinks the cards rather
+  // than letting the controls land on top of them.
+  const reserve = Math.max(158, Math.min(184, viewportH * 0.28));
+  const topPx = Math.round(viewportH * 0.05);
+  const available = Math.max(180, viewportH - topPx - reserve);
+
+  const widthCap = mobile ? Math.min(w * 0.7, 300) : 340;
+  // Cards are 3/4 portrait, so the height budget caps width at 0.75 of it.
+  const cardW = Math.max(140, Math.min(widthCap, available * 0.75));
+
   const halfW = w / 2;
   return {
-    radius: mobile ? 1200 : 2100,
+    // Radius tracks card size so the spacing between cards stays in
+    // proportion however large or small they end up.
+    radius: cardW * (mobile ? 4.6 : 6.6),
     gap: (mobile ? 16 : 10) * DEG,
     cardW,
-    // Tuned so a card is well faded by the time only an unreadable sliver of
-    // it is left on screen. A partly visible card reads as depth; a bright
-    // wedge with no mark or caption in it reads as a rendering bug. Both
-    // bounds scale with the viewport, so a wide monitor simply shows more
-    // cards rather than needing its own numbers.
+    topPx,
     fadeStart: halfW * 0.75,
     fadeEnd: halfW + cardW * 0.4,
   };
@@ -110,7 +128,8 @@ export function ArcCarousel({
   useEffect(() => {
     if (reduced) return;
 
-    config.current = readConfig();
+    const measure = () => viewport.current?.clientHeight ?? window.innerHeight;
+    config.current = readConfig(measure());
     playing.current = new Array(count).fill(false);
 
     const applySizing = () => {
@@ -120,15 +139,25 @@ export function ArcCarousel({
         if (!el) continue;
         el.style.width = `${cfg.cardW}px`;
         el.style.marginLeft = `${-cfg.cardW / 2}px`;
+        el.style.top = `${cfg.topPx}px`;
+        // The card sets its own root size and everything inside it is in em,
+        // so a card that shrinks to fit a short window keeps its proportions
+        // instead of wearing type meant for a card half again as wide.
+        el.style.fontSize = `${(cfg.cardW / 320) * 16}px`;
       }
     };
 
     const onResize = () => {
-      config.current = readConfig();
+      config.current = readConfig(measure());
       applySizing();
     };
     applySizing();
     window.addEventListener("resize", onResize);
+
+    // The arc viewport changes height whenever the heading above it rewraps,
+    // which a window resize listener alone does not catch.
+    const heightObserver = new ResizeObserver(onResize);
+    if (viewport.current) heightObserver.observe(viewport.current);
 
     let raf = 0;
     let running = false;
@@ -236,6 +265,7 @@ export function ArcCarousel({
     return () => {
       stop();
       io.disconnect();
+      heightObserver.disconnect();
       window.removeEventListener("resize", onResize);
     };
   }, [count, reduced]);
@@ -363,7 +393,7 @@ export function ArcCarousel({
             ref={(el) => {
               cards.current[i] = el;
             }}
-            className="absolute left-1/2 top-[10%] will-change-transform md:top-[7%]"
+            className="absolute left-1/2 top-0 will-change-transform"
             style={{ width: 320, marginLeft: -160 }}
           >
             <ArcCard
@@ -390,7 +420,7 @@ export function ArcCarousel({
       {/* Visible controls. A carousel with no affordance is a carousel most
           people never touch, and these give keyboard users a real target.
           The scrim keeps them legible where a card caption sits behind. */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-14 z-[2000] flex items-center justify-center gap-3 md:bottom-16">
+      <div className="pointer-events-none absolute inset-x-0 bottom-6 z-[2000] flex items-center justify-center gap-3 md:bottom-6">
         <button
           type="button"
           onClick={() => step(-1)}

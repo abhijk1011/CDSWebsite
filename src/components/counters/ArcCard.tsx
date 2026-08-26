@@ -32,7 +32,7 @@ export function ArcCard({
       onClick={onOpen}
       onFocus={onFocus}
       aria-label={`${item.name}, ${item.tagline}. ${item.items.length} lines.`}
-      className="group relative block aspect-3/4 w-full overflow-hidden rounded-[20px] bg-clay text-left shadow-[0_18px_48px_rgba(0,0,0,0.35)] outline-none focus-visible:ring-3 focus-visible:ring-terracotta-600"
+      className="group relative block aspect-3/4 w-full overflow-hidden rounded-[1.25em] bg-clay text-left shadow-[0_18px_48px_rgba(0,0,0,0.35)] outline-none focus-visible:ring-3 focus-visible:ring-terracotta-600"
     >
       {/* Media */}
       <span className="absolute inset-0 block">
@@ -59,16 +59,16 @@ export function ArcCard({
         )}
       </span>
 
-      <span className="absolute left-5 top-4 z-10 font-display text-[0.8125rem] tnum text-caramel">
+      <span className="absolute left-[1.2em] top-[1em] z-10 font-display text-[0.82em] tnum text-caramel">
         {String(index + 1).padStart(2, "0")}
       </span>
 
       {/* Caption */}
-      <span className="absolute inset-x-0 bottom-0 z-10 block border-t border-[rgba(138,90,59,0.18)] bg-cream px-5 py-4">
-        <span className="block font-display text-[1.35rem] leading-tight text-cocoa">
+      <span className="absolute inset-x-0 bottom-0 z-10 block border-t border-[rgba(138,90,59,0.18)] bg-cream px-[1.2em] py-[1em]">
+        <span className="block font-display text-[1.35em] leading-tight text-cocoa">
           {item.name}
         </span>
-        <span className="mt-0.5 block text-[0.8125rem] leading-snug text-caramel">
+        <span className="mt-[0.15em] block text-[0.82em] leading-snug text-caramel">
           {item.tagline}
         </span>
       </span>
