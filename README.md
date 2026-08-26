@@ -213,3 +213,28 @@ The site is built to look finished without it. Every counter is represented by
 a drawn mark in `src/components/marks.tsx` rather than a photo, which is what
 keeps the set visually consistent. When real product shots exist they can drop
 into the clay tile areas in `CategoryGrid` and `CounterWalk` without a redesign.
+
+### Dish photography
+
+Everything in `public/live` is a coloured stand in, written by `npm run art`.
+Each one sits at the filename and the shape a real photograph would use, so
+there is never any code to change: a photograph simply takes its place.
+
+Shoot or generate at **4:3, landscape**. Then save each file into
+`public/live/incoming/` named for its dish, in any format and at any size, and
+run:
+
+```bash
+npm run shots
+```
+
+Every file is cropped to 1400 by 1050, encoded as a progressive JPEG and moved
+into `public/live/` over the stand in. A name that is not a dish on the board
+is refused rather than quietly written, so a typo cannot leave a stand in in
+place while looking like it worked.
+
+The dish slugs are listed in `scripts/normalise-shots.mjs`, and each one is the
+`image` path in `src/content/live.ts` without the folder or the extension.
+
+Only dishes with a picture take a turn in the rotating panel on the home page,
+so photography can arrive a few dishes at a time without leaving a gap.
