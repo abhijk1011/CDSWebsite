@@ -13,8 +13,17 @@
  * real photograph would use, so replacing one is a matter of dropping the
  * photograph over it. No code changes, no extension to update.
  *
- * Existing files are never overwritten. Pass --force to rebuild them, which
- * will flatten any real photography already in place.
+ * Existing files are never overwritten, because most of them are real
+ * photographs by now.
+ *
+ * --force rebuilds them, and on its own it is refused: an unscoped force run
+ * flattens every photograph in the project, which is a lot of damage for a
+ * flag you reach for to redraw one set. Scope it and it will run:
+ *
+ *   node scripts/make-dish-art.mjs --force --only=charliee
+ *
+ * --only=live|counters|charliee also works without --force, to fill gaps in a
+ * single set.
  */
 import { mkdirSync, existsSync } from "node:fs";
 import sharp from "sharp";
@@ -74,6 +83,28 @@ const COUNTERS = {
   "charliee":         ["#E0C7A8", ["#A34A2C", "#F6EBD8", "#6B4326"]],
 };
 
+
+/**
+ * Twelve stand ins for the Charliee mosaic, at the four by five the real
+ * photographs are supplied at. Coloured from the packs themselves rather than
+ * one house tint, so the wall reads as a range of products even before a
+ * single real picture lands.
+ */
+const CHARLIEE = {
+  "charliee-01": ["#E4C79E", ["#A34A2C", "#F6EBD8", "#6B4326"]],
+  "charliee-02": ["#DFC08C", ["#C08A3A", "#F2E2C2", "#7E5628"]],
+  "charliee-03": ["#EDE2CC", ["#F7F1E2", "#CBB894", "#9A8460"]],
+  "charliee-04": ["#D9BE97", ["#8A5A2E", "#E8CFA8", "#5E3A1E"]],
+  "charliee-05": ["#E8CFA4", ["#C68A3A", "#F6EBD4", "#8A5A2A"]],
+  "charliee-06": ["#D9DCB4", ["#5B7B3A", "#EFEEDA", "#8A9A54"]],
+  "charliee-07": ["#E9C589", ["#C4441E", "#F6E4C0", "#8A3A18"]],
+  "charliee-08": ["#B58F6E", ["#52341F", "#D9BC9C", "#7C5334"]],
+  "charliee-09": ["#E5C583", ["#D9A03A", "#F4E3B8", "#96652A"]],
+  "charliee-10": ["#EAD3C4", ["#C96B8A", "#FBF0E6", "#8A4E5E"]],
+  "charliee-11": ["#EBD79A", ["#E3C24A", "#F8EFCE", "#A8842C"]],
+  "charliee-12": ["#D6C2A6", ["#3E5A6B", "#EFE6D6", "#8A6A4A"]],
+};
+
 /** Deterministic pseudo random, so a name always yields the same picture. */
 function rng(seed) {
   let h = 2166136261;
@@ -88,10 +119,13 @@ function rng(seed) {
 }
 
 /** Four by three, the same shape the generated photography comes back at. */
-const W = 1400, H = 1050;
-const CX = 700, CY = 525, PLATE = 372;
+const LANDSCAPE = { W: 1400, H: 1050, PLATE: 372 };
+/** Four by five, the shape every Charliee photograph is supplied at. */
+const PORTRAIT = { W: 1200, H: 1500, PLATE: 430 };
 
-function art(name, base, accents) {
+function art(name, base, accents, shape) {
+  const { W, H, PLATE } = shape === "portrait" ? PORTRAIT : LANDSCAPE;
+  const CX = W / 2, CY = H / 2;
   const r = rng(name);
 
   // Food arranged on a plate rather than a cloud of colour. Heavy blur turned
@@ -159,8 +193,24 @@ function art(name, base, accents) {
 }
 
 const force = process.argv.includes("--force");
+const onlyArg = process.argv.find((a) => a.startsWith("--only="));
+const only = onlyArg ? onlyArg.slice("--only=".length) : null;
 
-async function write(dir, table) {
+const SETS = ["live", "counters", "charliee"];
+if (only && !SETS.includes(only)) {
+  console.error(`--only must be one of: ${SETS.join(", ")}`);
+  process.exit(1);
+}
+if (force && !only) {
+  console.error(
+    "Refusing to force every set at once: that would overwrite real\n" +
+    "photography with stand ins. Name the one you mean, for example\n" +
+    "  node scripts/make-dish-art.mjs --force --only=charliee",
+  );
+  process.exit(1);
+}
+
+async function write(dir, table, shape) {
   mkdirSync(dir, { recursive: true });
   let written = 0, kept = 0;
   for (const [name, [base, accents]] of Object.entries(table)) {
@@ -169,7 +219,9 @@ async function write(dir, table) {
       kept++;
       continue;
     }
-    await sharp(Buffer.from(art(name, base, accents)))
+    // Drawn at the shape it is stored at, rather than drawn landscape and
+    // cropped, which threw away the coloured edges and left a pale middle.
+    await sharp(Buffer.from(art(name, base, accents, shape)))
       .jpeg({ quality: 82, progressive: true, mozjpeg: true })
       .toFile(file);
     written++;
@@ -177,10 +229,18 @@ async function write(dir, table) {
   return { written, kept };
 }
 
-const a = await write("public/live", DISHES);
-const b = await write("public/counters", COUNTERS);
+const wanted = (set) => !only || only === set;
+
+const a = wanted("live") ? await write("public/live", DISHES) : null;
+const b = wanted("counters") ? await write("public/counters", COUNTERS) : null;
+const c = wanted("charliee")
+  ? await write("public/charliee", CHARLIEE, "portrait")
+  : null;
+
+const report = (label, r) =>
+  r ? `${label}: wrote ${r.written}, left ${r.kept} in place.` : `${label}: skipped.`;
+
 console.log(
-  `Dishes: wrote ${a.written}, left ${a.kept} in place. ` +
-  `Counters: wrote ${b.written}, left ${b.kept} in place.` +
-  (force ? " (forced)" : ""),
+  [report("Dishes", a), report("Counters", b), report("Charliee", c)].join(" ") +
+  (force ? ` (forced ${only})` : ""),
 );

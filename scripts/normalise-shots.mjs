@@ -2,8 +2,8 @@
 /**
  * Takes whatever comes out of an image generator and makes it web ready.
  *
- * Save each download into public/live/incoming/ under the dish slug, in any
- * format and at any size, then:
+ * Save each file into public/live/incoming/ under its slug, in any format and
+ * at any size, then:
  *
  *   npm run shots
  *
@@ -13,9 +13,13 @@
  * kilobytes, which is the difference between a page that loads and a page
  * that hangs on a phone.
  *
- * A name that is not a dish on the board is refused rather than quietly
- * written, because a typo would otherwise leave a stand in in place and look
- * like the script had run fine.
+ * Dish slugs land in public/live cropped to four by three. Charliee slugs
+ * (charliee-01 through charliee-12) land in public/charliee and keep their
+ * four by five frame, because that mosaic crops each slot itself.
+ *
+ * A name that is neither is refused rather than quietly written, because a
+ * typo would otherwise leave a stand in in place and look like the script had
+ * run fine.
  */
 import { mkdirSync, readdirSync, unlinkSync } from "node:fs";
 import { basename, extname, join } from "node:path";
@@ -23,6 +27,7 @@ import sharp from "sharp";
 
 const IN = "public/live/incoming";
 const OUT = "public/live";
+const CHARLIEE_OUT = "public/charliee";
 
 /**
  * The shape the home page panel crops to, and the widest we ever store.
@@ -32,6 +37,15 @@ const OUT = "public/live";
  */
 const MAX_W = 1400;
 const ratio = 4 / 3;
+
+/**
+ * The Charliee mosaic slots. These keep their four by five shape rather than
+ * being cropped to the panel, because the mosaic does its own cropping per
+ * slot and needs the whole frame to choose from.
+ */
+const CHARLIEE = new Set(
+  Array.from({ length: 12 }, (_, i) => `charliee-${String(i + 1).padStart(2, "0")}`),
+);
 
 /** Every dish the menu currently expects a picture for. */
 const SLUGS = new Set([
@@ -46,6 +60,7 @@ const SLUGS = new Set([
 ]);
 
 mkdirSync(IN, { recursive: true });
+mkdirSync(CHARLIEE_OUT, { recursive: true });
 
 const files = readdirSync(IN).filter((f) =>
   /\.(png|jpe?g|webp|avif|tiff?)$/i.test(f),
@@ -61,15 +76,17 @@ const unknown = [];
 
 for (const file of files) {
   const slug = basename(file, extname(file)).toLowerCase();
-  if (!SLUGS.has(slug)) {
+  const isCharliee = CHARLIEE.has(slug);
+  if (!isCharliee && !SLUGS.has(slug)) {
     unknown.push(file);
     continue;
   }
-  const target = join(OUT, `${slug}.jpg`);
+  const target = join(isCharliee ? CHARLIEE_OUT : OUT, `${slug}.jpg`);
   const source = sharp(join(IN, file));
   const { width } = await source.metadata();
   const w = Math.min(width || MAX_W, MAX_W);
-  const h = Math.round(w / ratio);
+  // Charliee keeps its portrait frame; the mosaic crops each slot itself.
+  const h = Math.round(isCharliee ? (w * 5) / 4 : w / ratio);
   await source
     .resize(w, h, { fit: "cover", position: "attention" })
     .jpeg({ quality: 82, progressive: true, mozjpeg: true })
