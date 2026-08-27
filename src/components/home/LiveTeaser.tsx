@@ -6,6 +6,7 @@ import { Button, Arrow } from "@/components/primitives/Button";
 import { MaskReveal, Rise } from "@/components/primitives/Reveal";
 import { OpenPill } from "@/components/home/OpenPill";
 import { LivePanel, type Dish } from "@/components/home/LivePanel";
+import { LiveReel } from "@/components/home/LiveReel";
 import { usePrefersReducedMotion } from "@/lib/hooks";
 
 const ROTATE_MS = 3200;
@@ -59,21 +60,29 @@ export function LiveTeaser() {
         <LivePanel dish={dish} count={count} feather />
       </div>
 
-      <div className="shell relative py-20 md:py-28">
+      <div className="shell relative py-14 md:py-28">
         <div className="lg:max-w-[46%]">
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
             <p className="eyebrow">The live counter</p>
             <OpenPill />
           </div>
 
           <MaskReveal
             as="h2"
-            className="mt-6 font-display text-h2 text-cocoa display-wonk"
+            className="mt-4 font-display text-h2 text-cocoa display-wonk sm:mt-6"
             lines={["Some things cannot", "wait on a shelf."]}
             linesSm={["Some things", "cannot wait", "on a shelf."]}
           />
 
-          <Rise index={1}>
+          {/*
+            The paragraph and the counter list are the argument for the live
+            counter, and on a laptop they sit in a column beside the picture at
+            no cost. On a phone they stack, and the section became two screens
+            of reading before it showed a single dish. The pictures make the
+            same case faster, so below lg the words step aside and the reel
+            below does the talking.
+          */}
+          <Rise index={1} className="hidden lg:block">
             <p className="mt-7 max-w-lg text-[1.0625rem] leading-relaxed text-body">
               A pani puri filled five minutes ago is a soggy thing, and a pizza
               that sat under a lamp is a different food to one that did not. The
@@ -102,11 +111,16 @@ export function LiveTeaser() {
           </Rise>
         </div>
 
-        {/* Narrow screens get the panel as a card underneath rather than a
-            bleed behind the copy, where a masked edge would eat the text. */}
-        <Rise index={2} className="mt-12 lg:hidden">
-          <div className="aspect-4/5 overflow-hidden rounded-[1.25rem] border border-[rgba(138,90,59,0.18)] shadow-[0_6px_20px_rgba(58,35,26,0.10)] sm:aspect-16/10">
-            <LivePanel dish={dish} count={count} />
+        {/* Below lg the reel is the section: a strip of dishes that advances on
+            its own and answers to a thumb. */}
+        <Rise index={1} className="mt-7 lg:hidden">
+          <LiveReel dishes={dishes} />
+
+          <div className="mt-7">
+            <Button href="/live-snacks" fluid>
+              See the live menu
+              <Arrow />
+            </Button>
           </div>
         </Rise>
       </div>
