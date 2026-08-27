@@ -15,7 +15,7 @@
  * Add a slug and a URL to SHOTS to bring in more. Anything already holding a
  * photograph is left alone unless you pass --force.
  */
-import { existsSync, writeFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import sharp from "sharp";
 
 /** Dish slug, matching the image path in src/content/live.ts, to source URL. */

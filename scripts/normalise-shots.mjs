@@ -17,7 +17,7 @@
  * written, because a typo would otherwise leave a stand in in place and look
  * like the script had run fine.
  */
-import { existsSync, mkdirSync, readdirSync, unlinkSync } from "node:fs";
+import { mkdirSync, readdirSync, unlinkSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import sharp from "sharp";
 
