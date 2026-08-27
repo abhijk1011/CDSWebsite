@@ -1,0 +1,487 @@
+<title>CDS Photo Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&family=Source+Sans+3:wght@400;600&display=swap">
+
+<style>
+  /*
+    Committed to a dark ground rather than following the viewer's theme. This
+    is a page for judging photographs, and a surround that changes underneath
+    them changes how they read. Every colour is painted explicitly so the page
+    holds whichever theme the host is in.
+  */
+  :root {
+    --ground:   #17130F;
+    --surface:  #221C16;
+    --raised:   #2C241C;
+    --ink:      #F4EDE4;
+    --muted:    #A2948A;
+    --faint:    #6E625A;
+    --rule:     #322A22;
+    --flag:     #E08050;
+    --flag-dim: #3A2117;
+    --ok:       #7FBF7A;
+
+    /* Taken from the site, so the overlay preview is not an approximation. */
+    --site-cream: #fdf8f2;
+    --site-muted: #c9b4a3;
+    --site-terra: #be5f3c;
+
+    --chrome: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --body: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+    --site-display: "Fraunces", "Iowan Old Style", Palatino, serif;
+    --site-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 78rem; margin: 0 auto; padding: 0 1.5rem 6rem; }
+
+  /* ---------- masthead ---------- */
+
+  header.top { padding: 3.5rem 0 1.5rem; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: .75rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--flag);
+    margin: 0 0 .9rem;
+  }
+
+  h1 {
+    font-family: var(--chrome);
+    font-weight: 700;
+    font-size: clamp(2.25rem, 5.5vw, 3.5rem);
+    letter-spacing: -.025em;
+    line-height: 1.03;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .standfirst {
+    max-width: 38rem;
+    margin: 1.15rem 0 0;
+    color: var(--muted);
+    font-size: 1.0625rem;
+  }
+
+  /* ---------- toolbar ---------- */
+
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .9rem;
+    margin-top: 2rem;
+    padding: .85rem 0;
+    background: color-mix(in srgb, var(--ground) 92%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .tally {
+    flex: 1 1 11rem;
+    font-size: .875rem;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tally b { color: var(--ink); font-family: var(--mono); font-weight: 500; }
+  .tally .n-flag { color: var(--flag); }
+
+  .seg {
+    display: inline-flex;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 2px;
+  }
+
+  .seg button {
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: .8125rem;
+    padding: .35rem .8rem;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .seg button[aria-pressed="true"] { background: var(--raised); color: var(--ink); }
+
+  button {
+    font-family: var(--body);
+    font-size: .8125rem;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: .45rem .9rem;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+
+  button:hover { border-color: var(--faint); }
+  button:focus-visible { outline: 2px solid var(--flag); outline-offset: 2px; }
+
+  button.primary { background: var(--flag); border-color: var(--flag); color: #21150E; font-weight: 600; }
+  button.primary:hover { filter: brightness(1.07); }
+
+  /* ---------- sections ---------- */
+
+  .course { margin-top: 3rem; }
+
+  .course-head {
+    display: flex;
+    align-items: baseline;
+    gap: .9rem;
+    padding-bottom: .9rem;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 1.5rem;
+  }
+
+  .course-head h2 {
+    font-family: var(--chrome);
+    font-weight: 600;
+    font-size: 1.5rem;
+    letter-spacing: -.015em;
+    margin: 0;
+  }
+
+  .course-head p { margin: 0; color: var(--muted); font-size: .875rem; flex: 1; }
+
+  .count {
+    font-family: var(--mono);
+    font-size: .8125rem;
+    color: var(--faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  }
+
+  /* ---------- one photograph ---------- */
+
+  .shot { min-width: 0; }
+
+  .frame {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    transition: box-shadow .18s, border-color .18s;
+  }
+
+  body[data-aspect="mobile"] .frame { aspect-ratio: 4 / 5; }
+
+  .frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* The site's own scrim, stop for stop. */
+  .scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(58,35,26,0.80) 0%,
+      rgba(58,35,26,0.52) 30%,
+      rgba(58,35,26,0.16) 58%,
+      rgba(58,35,26,0) 80%
+    );
+  }
+
+  .caption {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    padding: 1.15rem 1.25rem;
+  }
+
+  .eyebrow-row { display: flex; }
+
+  .caption .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-family: var(--site-sans);
+    font-size: .6875rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--site-muted);
+    margin: 0;
+  }
+
+  .caption .eyebrow i {
+    width: .35rem;
+    height: .35rem;
+    border-radius: 999px;
+    background: var(--site-terra);
+    display: block;
+  }
+
+  .caption .dish {
+    display: block;
+    margin-top: .3rem;
+    font-family: var(--site-display);
+    font-variation-settings: "SOFT" 28, "WONK" 1, "opsz" 144;
+    font-weight: 400;
+    font-size: clamp(1.5rem, 3.4vw, 2rem);
+    line-height: 1.15;
+    color: var(--site-cream);
+  }
+
+  .flag {
+    position: absolute;
+    top: .7rem;
+    right: .7rem;
+    background: rgba(23,19,15,.72);
+    backdrop-filter: blur(6px);
+    border-color: rgba(244,237,228,.22);
+    color: var(--ink);
+    font-size: .75rem;
+    padding: .35rem .7rem;
+  }
+
+  .flag .flag-on { display: none; }
+  .flag[aria-pressed="true"] {
+    background: var(--flag);
+    border-color: var(--flag);
+    color: #21150E;
+    font-weight: 600;
+  }
+  .flag[aria-pressed="true"] .flag-on { display: inline; }
+  .flag[aria-pressed="true"] .flag-off { display: none; }
+
+  .shot.is-flagged .frame {
+    border-color: var(--flag);
+    box-shadow: 0 0 0 2px var(--flag);
+  }
+
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin-top: .7rem;
+  }
+
+  .meta code {
+    flex: 1;
+    font-family: var(--mono);
+    font-size: .8125rem;
+    color: var(--muted);
+    word-break: break-all;
+  }
+
+  details { margin-top: .5rem; }
+
+  summary {
+    font-size: .8125rem;
+    color: var(--faint);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: "＋ "; }
+  details[open] summary::before { content: "－ "; }
+  summary:focus-visible { outline: 2px solid var(--flag); outline-offset: 2px; }
+
+  details p {
+    margin: .5rem 0 0;
+    font-size: .8125rem;
+    line-height: 1.55;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: .7rem .8rem;
+  }
+
+  /* ---------- footer note ---------- */
+
+  .note {
+    margin-top: 3.5rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--rule);
+    color: var(--muted);
+    font-size: .875rem;
+  }
+
+  .note h2 {
+    font-family: var(--chrome);
+    font-weight: 600;
+    font-size: 1.1875rem;
+    color: var(--ink);
+    margin: 0 0 .6rem;
+  }
+
+  .note p { margin: 0 0 .75rem; max-width: 48rem; }
+  .note p:last-child { margin-bottom: 0; }
+
+  .note code {
+    font-family: var(--mono);
+    font-size: .85em;
+    background: var(--surface);
+    border-radius: 4px;
+    padding: .12em .4em;
+    color: var(--ink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition-duration: .01ms !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="top">
+    <p class="eyebrow">CDS · live counter</p>
+    <h1>Photo review</h1>
+    <p class="standfirst">
+      All <!--TOTAL--> dishes, each under the exact overlay the home page puts
+      on it. Mark the ones you want to redo, then copy the list.
+    </p>
+  </header>
+
+  <div class="toolbar">
+    <p class="tally" id="tally"></p>
+    <span class="seg" role="group" aria-label="Crop">
+      <button type="button" id="a-desktop" aria-pressed="true">Desktop 4:3</button>
+      <button type="button" id="a-mobile" aria-pressed="false">Mobile 4:5</button>
+    </span>
+    <button type="button" id="clear">Clear marks</button>
+    <button type="button" id="copy-list" class="primary">Copy redo list</button>
+  </div>
+
+  <!--SECTIONS-->
+
+  <section class="note">
+    <h2>When you have picked them</h2>
+    <p>
+      Hit <strong>Copy redo list</strong> and paste it to me. Regenerate at
+      <strong>4:3 landscape</strong>, keep the same filename, and upload to the
+      same folder. I will crop, compress and swap them in.
+    </p>
+    <p>
+      The <strong>Mobile 4:5</strong> crop is worth a look before you decide.
+      The home page card on a phone is taller than the desktop panel, so a
+      picture with its subject near an edge can lose it there while looking
+      fine here.
+    </p>
+    <p>
+      Marks are kept in this browser only, so you can close the page and come
+      back to them. They are not visible to anyone else.
+    </p>
+  </section>
+
+</div>
+
+<script>
+  var KEY = "cds-photo-review-v1";
+
+  function load() {
+    try { return new Set(JSON.parse(localStorage.getItem(KEY) || "[]")); }
+    catch (e) { return new Set(); }
+  }
+  function save(set) {
+    try { localStorage.setItem(KEY, JSON.stringify([].slice.call(set))); }
+    catch (e) { /* private window, or site data blocked */ }
+  }
+
+  var flagged = load();
+  var shots = [].slice.call(document.querySelectorAll(".shot"));
+
+  function tally() {
+    var n = flagged.size;
+    document.getElementById("tally").innerHTML =
+      "<b>" + shots.length + "</b> photographs · <b class='n-flag'>" + n +
+      "</b> marked to redo";
+  }
+
+  function paint(shot) {
+    var on = flagged.has(shot.dataset.slug);
+    shot.classList.toggle("is-flagged", on);
+    shot.querySelector(".flag").setAttribute("aria-pressed", on ? "true" : "false");
+  }
+
+  shots.forEach(function (shot) {
+    paint(shot);
+    shot.querySelector(".flag").addEventListener("click", function () {
+      var slug = shot.dataset.slug;
+      if (flagged.has(slug)) { flagged.delete(slug); } else { flagged.add(slug); }
+      save(flagged); paint(shot); tally();
+    });
+    shot.querySelector(".copy-brief").addEventListener("click", function (e) {
+      copy(shot.querySelector("details p").textContent, e.currentTarget);
+    });
+  });
+
+  function flash(btn, msg) {
+    var was = btn.dataset.label || btn.textContent;
+    btn.dataset.label = was;
+    btn.textContent = msg;
+    clearTimeout(btn._t);
+    btn._t = setTimeout(function () { btn.textContent = btn.dataset.label; }, 1500);
+  }
+
+  function copy(text, btn) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        function () { flash(btn, "Copied"); },
+        function () { flash(btn, "Clipboard blocked"); }
+      );
+    } else {
+      flash(btn, "Clipboard blocked");
+    }
+  }
+
+  document.getElementById("copy-list").addEventListener("click", function (e) {
+    if (flagged.size === 0) { flash(e.currentTarget, "Nothing marked"); return; }
+    var lines = shots
+      .filter(function (s) { return flagged.has(s.dataset.slug); })
+      .map(function (s) {
+        return s.dataset.slug + ".jpg  —  " + s.querySelector(".dish").textContent;
+      });
+    copy("Redo these " + lines.length + " dish photos:\n" + lines.join("\n"), e.currentTarget);
+  });
+
+  document.getElementById("clear").addEventListener("click", function () {
+    flagged.clear(); save(flagged); shots.forEach(paint); tally();
+  });
+
+  function setAspect(mobile) {
+    document.body.dataset.aspect = mobile ? "mobile" : "desktop";
+    document.getElementById("a-mobile").setAttribute("aria-pressed", mobile ? "true" : "false");
+    document.getElementById("a-desktop").setAttribute("aria-pressed", mobile ? "false" : "true");
+  }
+  document.getElementById("a-mobile").addEventListener("click", function () { setAspect(true); });
+  document.getElementById("a-desktop").addEventListener("click", function () { setAspect(false); });
+
+  setAspect(false);
+  tally();
+</script>
