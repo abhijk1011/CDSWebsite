@@ -36,7 +36,7 @@ export default function LiveSnacksPage() {
 
       <SectionRail />
 
-      <div className="shell space-y-24 py-16 md:space-y-32 md:py-24">
+      <div className="shell space-y-14 py-10 md:space-y-32 md:py-24">
         {menu.map((section, n) => {
           const shot = section.items.filter((i) => i.image);
           const rest = section.items.filter((i) => !i.image);
@@ -46,7 +46,7 @@ export default function LiveSnacksPage() {
               <Chapter section={section} n={n + 1} photographed={shot.length} />
 
               {shot.length > 0 && (
-                <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="mt-5 grid grid-cols-2 gap-2.5 sm:mt-8 sm:gap-4 lg:grid-cols-3">
                   {shot.map((item, i) => (
                     <DishCard
                       key={item.name}
@@ -54,13 +54,14 @@ export default function LiveSnacksPage() {
                       section={section.name}
                       index={i}
                       priority={card++ === 0}
+                      wide={shot.length % 2 === 1 && i === shot.length - 1}
                     />
                   ))}
                 </div>
               )}
 
               {rest.length > 0 && (
-                <div className={shot.length > 0 ? "mt-12" : "mt-8"}>
+                <div className={shot.length > 0 ? "mt-8 md:mt-12" : "mt-5 md:mt-8"}>
                   <RestOfBoard items={rest} />
                 </div>
               )}

@@ -10,10 +10,14 @@ import { useReveal } from "@/components/primitives/Reveal";
 /**
  * One photographed dish.
  *
- * The picture carries the card and the words sit on it, which is the only
- * arrangement that works on a phone: a photograph beside a caption wastes
- * half the width, and a photograph above a caption pushes the price below the
- * fold. Everything a customer needs to order sits in one glance.
+ * The picture carries the card and the words sit on it, so nothing is spent
+ * on a caption column and the whole card stays one tap target.
+ *
+ * Two of these fit across a phone, which is the point. A full width card meant
+ * one dish filled the screen and twenty five dishes meant twenty five screens
+ * of scrolling: you could never compare two things, and by the fourth section
+ * you had forgotten the first. Half width halves the type but shows six dishes
+ * at once, and a menu is something you scan before you choose.
  *
  * The picture drifts slightly against the scroll. That is decoration, so it
  * is the first thing to go when someone has asked for reduced motion, and it
@@ -25,12 +29,21 @@ export function DishCard({
   section,
   index,
   priority = false,
+  wide = false,
 }: {
   item: MenuItem;
   section: string;
   index: number;
   /** The first card on the page loads eagerly. Everything else waits. */
   priority?: boolean;
+  /**
+   * Runs the full width of the phone grid. Given to the last card of an odd
+   * numbered section, where a half width card would otherwise sit beside a
+   * hole. It turns the leftover into the one dish per section that gets
+   * shown large, which is a better answer than a gap and reads as rhythm
+   * rather than as arithmetic.
+   */
+  wide?: boolean;
 }) {
   const reduced = usePrefersReducedMotion();
   const reveal = useReveal();
@@ -70,14 +83,23 @@ export function DishCard({
           transition: {
             duration: 0.72,
             ease: ease.out,
-            delay: Math.min(index, 3) * 0.06,
+            // Cascades across each screenful of the grid instead of only the
+            // first few cards, so a reader scrolling into row four still gets
+            // the arrival rather than a block that is simply there.
+            delay: (index % 6) * 0.05,
           },
         },
       }}
       {...reveal}
-      className="group relative isolate overflow-hidden rounded-[1.25rem] bg-clay shadow-[0_2px_14px_rgba(58,35,26,0.08)]"
+      className={`group relative isolate overflow-hidden rounded-[0.9rem] bg-clay shadow-[0_2px_14px_rgba(58,35,26,0.08)] transition-transform duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.985] motion-reduce:transition-none sm:rounded-[1.25rem] ${
+        wide ? "col-span-2 lg:col-span-1" : ""
+      }`}
     >
-      <div className="relative aspect-4/5 w-full overflow-hidden sm:aspect-square">
+      <div
+        className={`relative w-full overflow-hidden sm:aspect-square ${
+          wide ? "aspect-16/10" : "aspect-4/5"
+        }`}
+      >
         <motion.div
           className="absolute inset-0 will-change-transform"
           style={{ transform: drift }}
@@ -109,30 +131,56 @@ export function DishCard({
           }}
         />
 
-        <div className="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-4 p-5">
-          <div className="min-w-0">
-            <p className="text-[0.65rem] tracking-[0.16em] uppercase text-cream/85">
-              {section}
-            </p>
-            <h3 className="mt-1 font-display text-[1.35rem] leading-[1.15] text-cream display-wonk sm:text-[1.5rem]">
-              {item.name}
-            </h3>
-            {item.note && (
-              <p className="mt-1 text-[0.75rem] text-cream/85">{item.note}</p>
+        <div className="absolute inset-x-0 bottom-0 z-10 p-3.5 sm:p-5">
+          <div
+            className={`flex gap-1 sm:flex-row sm:items-end sm:justify-between sm:gap-4 ${
+              wide ? "flex-row items-end justify-between gap-4" : "flex-col"
+            }`}
+          >
+            <div className="min-w-0">
+              {/* The chapter heading right above already names the section, so
+                  the label only earns its space once the card is wide. */}
+              <p
+                className={`text-[0.65rem] tracking-[0.16em] uppercase text-cream/85 sm:block ${
+                  wide ? "block" : "hidden"
+                }`}
+              >
+                {section}
+              </p>
+              <h3
+                className={`font-display leading-[1.2] text-cream display-wonk sm:mt-1 sm:text-[1.5rem] sm:leading-[1.15] ${
+                  wide ? "mt-1 text-[1.35rem]" : "text-[0.98rem]"
+                }`}
+              >
+                {item.name}
+              </h3>
+              {item.note && (
+                <p
+                  className={`mt-0.5 text-[0.75rem] text-cream/85 sm:block ${
+                    wide ? "block" : "hidden"
+                  }`}
+                >
+                  {item.note}
+                </p>
+              )}
+            </div>
+
+            {item.price && (
+              <p
+                className={`shrink-0 font-display leading-none text-cream tnum sm:text-[1.5rem] ${
+                  wide ? "text-[1.35rem]" : "text-[0.98rem]"
+                }`}
+              >
+                <span aria-hidden="true">₹</span>
+                <span className="sr-only">Rupees </span>
+                {item.price}
+              </p>
             )}
           </div>
-
-          {item.price && (
-            <p className="shrink-0 font-display text-[1.35rem] leading-none text-cream tnum sm:text-[1.5rem]">
-              <span aria-hidden="true">₹</span>
-              <span className="sr-only">Rupees </span>
-              {item.price}
-            </p>
-          )}
         </div>
 
         {item.code && (
-          <p className="absolute top-4 left-4 z-10 rounded-full bg-[rgba(23,15,11,0.68)] px-2.5 py-1 text-[0.65rem] tracking-[0.08em] text-cream/90 backdrop-blur-sm tnum">
+          <p className="absolute top-2.5 left-2.5 z-10 rounded-full bg-[rgba(23,15,11,0.68)] px-2 py-0.5 text-[0.6rem] tracking-[0.06em] text-cream/90 backdrop-blur-sm tnum sm:top-4 sm:left-4 sm:px-2.5 sm:py-1 sm:text-[0.65rem]">
             <span className="sr-only">Counter code </span>
             {item.code}
           </p>

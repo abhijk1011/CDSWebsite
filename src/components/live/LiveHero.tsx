@@ -47,7 +47,7 @@ export function LiveHero({
   return (
     <div
       ref={ref}
-      className="relative isolate flex min-h-[86svh] flex-col justify-end overflow-hidden bg-cocoa"
+      className="relative isolate flex min-h-[76svh] md:min-h-[86svh] flex-col justify-end overflow-hidden bg-cocoa"
     >
       <motion.div
         className="absolute inset-0 -z-10 will-change-transform"
@@ -86,7 +86,7 @@ export function LiveHero({
         />
       </motion.div>
 
-      <div className="shell relative w-full pb-14 pt-32 md:pb-20 md:pt-40">
+      <div className="shell relative w-full pb-10 pt-28 md:pb-20 md:pt-40">
         <motion.div
           initial={reduced ? false : "hidden"}
           animate="shown"

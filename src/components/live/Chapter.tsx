@@ -32,7 +32,7 @@ export function Chapter({
     <header className="relative">
       <motion.div
         {...reveal}
-        className="flex items-baseline gap-4 sm:gap-6"
+        className="flex items-baseline gap-3 sm:gap-6"
         transition={{ staggerChildren: 0.06 }}
       >
         <motion.span
@@ -68,7 +68,7 @@ export function Chapter({
 
       <motion.div
         {...reveal}
-        className="mt-4 flex flex-wrap items-baseline gap-x-5 gap-y-1"
+        className="mt-2.5 flex flex-wrap items-baseline gap-x-4 gap-y-0.5 sm:mt-4 sm:gap-x-5"
         transition={{ staggerChildren: 0.05, delayChildren: 0.15 }}
       >
         <motion.p
@@ -80,7 +80,7 @@ export function Chapter({
               transition: { duration: 0.6, ease: ease.out },
             },
           }}
-          className="text-[0.9375rem] text-caramel"
+          className="text-[0.875rem] text-caramel sm:text-[0.9375rem]"
         >
           {section.kicker}
         </motion.p>
@@ -104,7 +104,7 @@ export function Chapter({
           than an animated width, so it never triggers layout. */}
       <motion.span
         aria-hidden="true"
-        className="mt-6 block h-px w-full origin-left bg-[rgba(138,90,59,0.28)]"
+        className="mt-4 block h-px w-full origin-left bg-[rgba(138,90,59,0.28)] sm:mt-6"
         initial={reduced ? false : { transform: "scaleX(0)" }}
         whileInView={{ transform: "scaleX(1)" }}
         viewport={{ once: true, margin: "0px 0px -10% 0px" }}
