@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { PageHeader } from "@/components/chrome/PageHeader";
-import { MenuBoard } from "@/components/live/MenuBoard";
-import { OpenPill } from "@/components/home/OpenPill";
-import { menu, pureVeg, jain } from "@/content/live";
-import { stores } from "@/content/site";
-import { Button, Arrow } from "@/components/primitives/Button";
-import { MaskReveal, Rise } from "@/components/primitives/Reveal";
+import { menu, boardNotes, pricesAsOf, jain } from "@/content/live";
+import { LiveHero } from "@/components/live/LiveHero";
+import { SectionRail } from "@/components/live/SectionRail";
+import { Chapter } from "@/components/live/Chapter";
+import { DishCard } from "@/components/live/DishCard";
+import { RestOfBoard } from "@/components/live/RestOfBoard";
+import { OrderOut } from "@/components/live/OrderOut";
 
 export const metadata: Metadata = {
   title: "Live snacks",
@@ -14,77 +14,84 @@ export const metadata: Metadata = {
 };
 
 const count = menu.reduce((n, s) => n + s.items.length, 0);
+const pictured = menu.reduce(
+  (n, s) => n + s.items.filter((i) => i.image).length,
+  0,
+);
+
+/** The hero takes the first photograph on the board. */
+const heroImage = menu.flatMap((s) => s.items).find((i) => i.image)?.image ?? "";
 
 export default function LiveSnacksPage() {
+  let card = 0;
+
   return (
     <>
-      <PageHeader
-        eyebrow="Live snacks"
-        lines={["The kitchen at the back."]}
-        linesSm={["The kitchen", "at the back."]}
-        standfirst="Nothing on this board is made before you ask for it. The tawa runs all day, the fryer goes on at four, and the puris are filled while you stand there because a pani puri that waited is not a pani puri."
-        aside={
-          <div className="mt-8 flex flex-wrap items-center gap-4">
-            <OpenPill />
-            {pureVeg && (
-              <span className="inline-flex items-center gap-2 rounded-full border border-[rgba(138,90,59,0.3)] px-3.5 py-1.5 text-[0.75rem] tracking-[0.04em] text-cocoa">
-                <span
-                  aria-hidden="true"
-                  className="flex h-3.5 w-3.5 items-center justify-center border border-[#4a7c3f]"
-                >
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#4a7c3f]" />
-                </span>
-                Pure vegetarian kitchen
-              </span>
-            )}
-            {jain && (
-              <span className="inline-flex items-center rounded-full border border-[rgba(138,90,59,0.3)] px-3.5 py-1.5 text-[0.75rem] tracking-[0.04em] text-cocoa">
-                No onion, no garlic, no potato
-              </span>
-            )}
-            <span className="text-[0.8125rem] tnum text-caramel">
-              {count} items on the board
-            </span>
-          </div>
-        }
+      <LiveHero
+        image={heroImage}
+        count={count}
+        pictured={pictured}
+        jain={jain}
       />
 
-      <MenuBoard />
+      <SectionRail />
 
-      <section className="bg-cocoa py-20 text-cream md:py-28">
-        <div className="shell grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-20">
-          <MaskReveal
-            as="h2"
-            className="font-display text-h2 text-cream display-wonk"
-            lines={["Ring ahead and it", "will still be hot."]}
-            linesSm={["Ring ahead", "and it will", "still be hot."]}
-          />
-          <Rise>
-            <p className="text-[1.0625rem] leading-relaxed text-on-dark-muted">
-              A pizza takes about twelve minutes and a frankie about eight, which
-              is a long time to stand in a shop on a Sunday. Call the counter,
-              tell them when you are coming, and it goes on the tawa to meet you
-              rather than to wait for you.
-            </p>
-            <p className="mt-5 text-[0.9375rem] leading-relaxed text-on-dark-muted">
-              One thing worth knowing before you call: once the counter starts an
-              order it cannot be cancelled, because by then it is already cooking.
-            </p>
-            <div className="mt-9 flex flex-wrap gap-3">
-              {stores.map((s, i) => (
-                <Button
-                  key={s.slug}
-                  href={`tel:${s.phoneDial}`}
-                  variant={i === 0 ? "primary" : "onDark"}
-                >
-                  Call {s.city}
-                  <Arrow />
-                </Button>
-              ))}
-            </div>
-          </Rise>
-        </div>
-      </section>
+      <div className="shell space-y-24 py-16 md:space-y-32 md:py-24">
+        {menu.map((section, n) => {
+          const shot = section.items.filter((i) => i.image);
+          const rest = section.items.filter((i) => !i.image);
+
+          return (
+            <section key={section.id} id={section.id} className="scroll-mt-28">
+              <Chapter section={section} n={n + 1} photographed={shot.length} />
+
+              {shot.length > 0 && (
+                <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {shot.map((item, i) => (
+                    <DishCard
+                      key={item.name}
+                      item={item}
+                      section={section.name}
+                      index={i}
+                      priority={card++ === 0}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {rest.length > 0 && (
+                <div className={shot.length > 0 ? "mt-12" : "mt-8"}>
+                  <RestOfBoard items={rest} />
+                </div>
+              )}
+            </section>
+          );
+        })}
+
+        {/* The small print the real board ends on. */}
+        <footer className="border-t border-[rgba(138,90,59,0.18)] pt-8">
+          <ul className="space-y-2.5">
+            {boardNotes.map((note) => (
+              <li
+                key={note}
+                className="flex items-start gap-3 text-[0.875rem] text-caramel"
+              >
+                <span
+                  aria-hidden="true"
+                  className="mt-[0.5em] h-1.5 w-1.5 shrink-0 rounded-full bg-terracotta-600"
+                />
+                {note}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-6 text-[0.8125rem] text-caramel">
+            Prices read off the counter board in {pricesAsOf}. The number beside
+            each item is the code to give at the counter.
+          </p>
+        </footer>
+      </div>
+
+      <OrderOut />
     </>
   );
 }

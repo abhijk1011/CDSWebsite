@@ -107,7 +107,7 @@ export function Footer() {
               </li>
             ))}
             <li className="text-[rgba(253,248,242,0.4)]">
-              This site is a showcase. Orders are taken at the counter.
+              Orders are taken at the counter, on Zomato and on Swiggy.
             </li>
           </ul>
         </div>

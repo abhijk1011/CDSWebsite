@@ -10,6 +10,16 @@ import { Arrow } from "@/components/primitives/Button";
 import { ease, duration } from "@/lib/motion";
 import { lockScroll, unlockScroll } from "@/lib/lenis";
 
+/**
+ * Pages that open on a full bleed dark photograph.
+ *
+ * The chrome is cocoa on cream everywhere else, which disappears against a
+ * dark hero at the one moment a visitor first sees it. Listing the pages is
+ * blunt, but it is also honest and cannot go stale silently: a new dark hero
+ * that is not listed shows up immediately in a screenshot.
+ */
+const DARK_HERO = new Set(["/live-snacks"]);
+
 export function Header() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
@@ -32,6 +42,15 @@ export function Header() {
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
+  // Only while the header is still transparent. Once it takes its cream
+  // background the normal cocoa chrome is correct again.
+  const overDarkHero =
+    !scrolled && DARK_HERO.has(pathname.replace(/\/$/, "") || "/");
+
+  // The open mobile menu lays cocoa over the whole screen and the header sits
+  // above it, so the chrome has to go light there too.
+  const onDark = overDarkHero || open;
+
   return (
     <>
       <header
@@ -45,7 +64,9 @@ export function Header() {
           <Link
             href="/"
             aria-label={`${brand.short}, home`}
-            className="relative z-10 text-cocoa transition-opacity duration-200 hover:opacity-70"
+            className={`relative z-10 transition-[opacity,color] duration-300 hover:opacity-70 ${
+              onDark ? "text-cream" : "text-cocoa"
+            }`}
           >
             <Wordmark className="h-7 w-auto md:h-[1.85rem]" />
           </Link>
@@ -58,15 +79,23 @@ export function Header() {
                   key={item.href}
                   href={item.href}
                   aria-current={active ? "page" : undefined}
-                  className={`relative rounded-full px-4 py-2.5 text-[0.9rem] transition-colors duration-200 ${
-                    active ? "text-cocoa" : "text-body hover:text-cocoa"
+                  className={`relative rounded-full px-4 py-2.5 text-[0.9rem] transition-colors duration-300 ${
+                    onDark
+                      ? active
+                        ? "text-cream"
+                        : "text-on-dark-muted hover:text-cream"
+                      : active
+                        ? "text-cocoa"
+                        : "text-body hover:text-cocoa"
                   }`}
                 >
                   {item.label}
                   {active && (
                     <motion.span
                       layoutId="nav-underline"
-                      className="absolute inset-x-4 bottom-1.5 h-px bg-terracotta-700"
+                      className={`absolute inset-x-4 bottom-1.5 h-px ${
+                        onDark ? "bg-cream" : "bg-terracotta-700"
+                      }`}
                       transition={{ duration: 0.32, ease: ease.out }}
                     />
                   )}
@@ -78,7 +107,11 @@ export function Header() {
           <div className="flex items-center gap-2">
             <a
               href={`tel:${stores[0].phoneDial}`}
-              className="group hidden items-center gap-2 rounded-full border border-[rgba(138,90,59,0.4)] px-5 py-2.5 text-[0.875rem] text-cocoa transition-[background-color,border-color,transform] duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] hover:border-caramel hover:bg-clay active:scale-[0.98] sm:inline-flex"
+              className={`group hidden items-center gap-2 rounded-full border px-5 py-2.5 text-[0.875rem] transition-[background-color,border-color,color,transform] duration-[300ms] ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.98] sm:inline-flex ${
+                onDark
+                  ? "border-[rgba(253,248,242,0.4)] text-cream hover:bg-[rgba(253,248,242,0.1)] hover:border-cream"
+                  : "border-[rgba(138,90,59,0.4)] text-cocoa hover:border-caramel hover:bg-clay"
+              }`}
             >
               Call the counter
               <Arrow />
@@ -89,7 +122,11 @@ export function Header() {
               onClick={() => setOpen((v) => !v)}
               aria-expanded={open}
               aria-controls="mobile-menu"
-              className="relative z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(138,90,59,0.4)] text-cocoa transition-[background-color,transform] duration-[160ms] ease-[cubic-bezier(0.23,1,0.32,1)] hover:bg-clay active:scale-[0.97] lg:hidden"
+              className={`relative z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border transition-[background-color,border-color,color,transform] duration-[300ms] ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.97] lg:hidden ${
+                onDark
+                  ? "border-[rgba(253,248,242,0.4)] text-cream hover:bg-[rgba(253,248,242,0.1)]"
+                  : "border-[rgba(138,90,59,0.4)] text-cocoa hover:bg-clay"
+              }`}
             >
               <span className="sr-only">{open ? "Close menu" : "Open menu"}</span>
               <span aria-hidden="true" className="relative block h-3 w-[18px]">

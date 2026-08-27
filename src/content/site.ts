@@ -76,6 +76,41 @@ export const social = [
   { label: "Facebook", href: "https://www.facebook.com/CDSstores/" },
 ] as const;
 
+/**
+ * Delivery partners.
+ *
+ * TODO for the CDS team: replace each href with the real listing for the
+ * store. These point at the partner's own search until then, which is honest
+ * about not knowing the outlet rather than sending someone to a dead link.
+ *
+ * The marks are drawn in `src/components/marks.tsx` from each brand's own
+ * colour. To use the official artwork instead, drop `zomato.svg` and
+ * `swiggy.svg` into `public/brands` and the button picks them up with no
+ * code change.
+ */
+export type Delivery = {
+  id: "zomato" | "swiggy";
+  label: string;
+  href: string;
+  /** The partner's brand colour, used for the button and the mark. */
+  colour: string;
+};
+
+export const delivery: Delivery[] = [
+  {
+    id: "zomato",
+    label: "Zomato",
+    href: "https://www.zomato.com/vapi/restaurants?q=CDS",
+    colour: "#E23744",
+  },
+  {
+    id: "swiggy",
+    label: "Swiggy",
+    href: "https://www.swiggy.com/search?query=CDS",
+    colour: "#FC8019",
+  },
+];
+
 export const nav = [
   { label: "What we sell", href: "/what-we-sell" },
   { label: "Live snacks", href: "/live-snacks" },
