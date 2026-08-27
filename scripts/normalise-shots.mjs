@@ -7,7 +7,7 @@
  *
  *   npm run shots
  *
- * Each file is cropped to the panel's shape, encoded as a progressive JPEG
+ * Each file is cropped to four by three, encoded as a progressive JPEG
  * and moved into public/live/ over the coloured stand in. A 2K PNG off a
  * generator is several megabytes; what lands here is around a hundred
  * kilobytes, which is the difference between a page that loads and a page
@@ -24,8 +24,14 @@ import sharp from "sharp";
 const IN = "public/live/incoming";
 const OUT = "public/live";
 
-/** The shape the home page panel crops to. */
-const W = 1400, H = 1050;
+/**
+ * The shape the home page panel crops to, and the widest we ever store.
+ * Anything narrower keeps its own width: enlarging a picture invents no
+ * detail, it only makes the file bigger, and this one sits behind a scrim
+ * and a mask where softness never shows anyway.
+ */
+const MAX_W = 1400;
+const ratio = 4 / 3;
 
 /** Every dish the menu currently expects a picture for. */
 const SLUGS = new Set([
@@ -60,8 +66,12 @@ for (const file of files) {
     continue;
   }
   const target = join(OUT, `${slug}.jpg`);
-  await sharp(join(IN, file))
-    .resize(W, H, { fit: "cover", position: "attention" })
+  const source = sharp(join(IN, file));
+  const { width } = await source.metadata();
+  const w = Math.min(width || MAX_W, MAX_W);
+  const h = Math.round(w / ratio);
+  await source
+    .resize(w, h, { fit: "cover", position: "attention" })
     .jpeg({ quality: 82, progressive: true, mozjpeg: true })
     .toFile(target);
   unlinkSync(join(IN, file));

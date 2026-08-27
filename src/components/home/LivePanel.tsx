@@ -68,13 +68,22 @@ export function LivePanel({
                 loading="lazy"
                 decoding="async"
               />
-              {/* Scrim only where a photograph needs it. */}
+              {/*
+                Scrim only where a photograph needs it.
+
+                The stops are not eyeballed. Every dish photograph was measured
+                at the three bands the text sits in, and this is the lightest
+                curve under which all of them clear WCAG AA: the eyebrow is the
+                binding constraint, because it sits highest, where the scrim has
+                already thinned out. The flat stand ins never showed the problem,
+                being uniformly mid tone. A bright plate does.
+              */}
               <span
                 aria-hidden="true"
                 className="absolute inset-0 block"
                 style={{
                   background:
-                    "linear-gradient(to top, rgba(58,35,26,0.72) 0%, rgba(58,35,26,0.15) 42%, rgba(58,35,26,0) 70%)",
+                    "linear-gradient(to top, rgba(58,35,26,0.80) 0%, rgba(58,35,26,0.52) 30%, rgba(58,35,26,0.16) 58%, rgba(58,35,26,0) 80%)",
                 }}
               />
             </>
